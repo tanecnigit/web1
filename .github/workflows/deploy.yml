@@ -1,0 +1,40 @@
+# Sestaví web (Astro) a nasadí ho na GitHub Pages při každém nahrání do větve main.
+# V nastavení repozitáře musí být Settings → Pages → Source: „GitHub Actions“.
+name: Nasazení na GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # Web běží na https://tanecnigit.github.io/web1/ – po přechodu na vlastní doménu tyto dvě hodnoty smažte
+      SITE_URL: https://tanecnigit.github.io
+      BASE_PATH: /web1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: withastro/action@v3
+        with:
+          node-version: 20
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

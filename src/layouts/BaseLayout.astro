@@ -11,8 +11,11 @@ interface Props {
 }
 
 const { title = site.title, description = site.description } = Astro.props;
-const canonical = new URL(Astro.url.pathname, Astro.site).href;
-const ogImage = new URL('/og-image.jpg', Astro.site).href;
+const canonical = new URL(Astro.url.pathname.replace(/\/?$/, '/'), Astro.site).href;
+// Soubory z public/ s ohledem na případný podadresář (např. GitHub Pages)
+const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+const asset = (path: string) => `${base}${path}`;
+const ogImage = new URL(asset('og-image.jpg'), Astro.site).href;
 
 // Strukturovaná data pro vyhledávače (sestavená z content.js)
 const jsonLd = {
@@ -96,9 +99,9 @@ const jsonLd = {
     <link rel="preload" href={fontLatin} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={fontLatinExt} as="font" type="font/woff2" crossorigin />
 
-    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="icon" type="image/png" sizes="48x48" href={asset('favicon-48.png')} />
+    <link rel="apple-touch-icon" href={asset('apple-touch-icon.png')} />
+    <link rel="manifest" href={asset('site.webmanifest')} />
 
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="cs_CZ" />
