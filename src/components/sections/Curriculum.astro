@@ -1,0 +1,181 @@
+---
+import SectionHeader from '../SectionHeader.astro';
+import TopicIcon from '../TopicIcon.astro';
+import { curriculum, audience } from '../../data/content.js';
+---
+
+<section class="section" id="obsah-kurzu" aria-labelledby="obsah-kurzu-title">
+  <div class="container">
+    <SectionHeader id="obsah-kurzu-title" title={curriculum.title} lead={curriculum.lead} />
+
+    <ul class="topics">
+      {
+        curriculum.items.map((item, i) => (
+          <li class={`topic card topic--${item.tone}`} data-reveal style={`--reveal-delay: ${i * 0.08}s`}>
+            <span class="glyph" aria-hidden="true" />
+            <span class="topic__badge">
+              <TopicIcon name={item.icon as any} />
+            </span>
+            <h3 class="topic__title">{item.title}</h3>
+            <p class="topic__text">{item.text}</p>
+          </li>
+        ))
+      }
+    </ul>
+
+    <aside class="audience card" aria-labelledby="pro-koho-title" data-reveal>
+      <div>
+        <h3 class="audience__title" id="pro-koho-title">{audience.title}</h3>
+        <p class="audience__text">{audience.text}</p>
+      </div>
+      <ul class="audience__places" aria-label="Odkud k nám studenti jezdí">
+        {audience.places.map((place) => <li>{place}</li>)}
+      </ul>
+    </aside>
+  </div>
+</section>
+
+<style>
+  .topics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    list-style: none;
+  }
+
+  .topic {
+    display: grid;
+    align-content: start;
+    gap: 0.75rem;
+    padding: 1.75rem 1.5rem 2rem;
+    min-height: 240px;
+  }
+
+  /* Barevné rozlišení ikon – dvojice odstínů z gradientu v úvodu */
+  .topic--pink {
+    --tone: 240, 127, 180;
+    --tone-a: #f4a3c8;
+    --tone-b: #e2609e;
+  }
+
+  .topic--sky {
+    --tone: 110, 178, 236;
+    --tone-a: #9fd0f6;
+    --tone-b: #4f8fe0;
+  }
+
+  .topic--violet {
+    --tone: 168, 132, 238;
+    --tone-a: #c9b3fa;
+    --tone-b: #8a5fe0;
+  }
+
+  .topic--peach {
+    --tone: 244, 186, 112;
+    --tone-a: #fbd59e;
+    --tone-b: #ef9a5c;
+  }
+
+  .topic .glyph {
+    border-color: rgb(var(--tone));
+  }
+
+  /* Ikona bez podkladu – stejně střídmá jako ostatní prvky webu */
+  .topic__badge {
+    display: block;
+    margin-bottom: auto;
+  }
+
+  .topic__badge :global(.topic-icon) {
+    width: 48px;
+    height: 48px;
+    transition: transform 0.5s var(--ease);
+  }
+
+  .topic:hover .topic__badge :global(.topic-icon) {
+    transform: translateY(-3px);
+    transition-delay: 0s;
+  }
+
+  .topic__title {
+    margin-top: 2.5rem;
+    font-size: 1.15rem;
+    font-weight: 500;
+  }
+
+  .topic__text {
+    color: var(--text-subtle);
+    font-size: 0.9rem;
+    font-weight: 300;
+  }
+
+  .audience {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 2rem;
+    align-items: center;
+    margin-top: 1rem;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+  }
+
+  .audience__title {
+    margin-bottom: 0.6rem;
+    font-size: 1.15rem;
+    font-weight: 500;
+  }
+
+  .audience__text {
+    color: var(--text-subtle);
+    font-size: 0.95rem;
+    font-weight: 300;
+  }
+
+  .audience__places {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    list-style: none;
+  }
+
+  .audience__places li {
+    padding: 0.45rem 0.9rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 1024px) {
+    .topics {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .audience {
+      grid-template-columns: 1fr;
+    }
+
+    .audience__places {
+      justify-content: flex-start;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .topics {
+      grid-template-columns: 1fr;
+    }
+
+    .topic {
+      min-height: 0;
+    }
+
+    .topic__title {
+      margin-top: 1rem;
+    }
+  }
+</style>

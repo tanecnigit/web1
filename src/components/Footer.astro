@@ -1,0 +1,133 @@
+---
+import Logo from './Logo.astro';
+import { site, nav, contact, venue, cta } from '../data/content.js';
+
+const year = new Date().getFullYear();
+const links = [...nav, cta, { href: '#podminky', label: 'Storno podmínky a GDPR' }];
+---
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <Logo mark />
+        <p class="muted">{site.courseName} v Novém Jičíně od roku {site.since}.</p>
+      </div>
+
+      <nav aria-labelledby="footer-nav">
+        <h2 class="footer__heading" id="footer-nav">Navigace</h2>
+        <ul class="footer__list">
+          {
+            links.map((l) => (
+              <li>
+                <a href={l.href}>{l.label}</a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <div>
+        <h2 class="footer__heading">Kontakt</h2>
+        <ul class="footer__list">
+          <li>{contact.person}</li>
+          <li><a href={contact.phoneHref}>{contact.phone}</a></li>
+          <li><a href={`mailto:${contact.email}`}>{contact.email}</a></li>
+          <li>IČO {contact.ico}</li>
+        </ul>
+      </div>
+
+      <div>
+        <h2 class="footer__heading">Místo konání</h2>
+        <ul class="footer__list">
+          <li>{venue.name}</li>
+          <li>{venue.city}</li>
+          <li><a href={venue.mapUrl} target="_blank" rel="noopener">Zobrazit na mapě ↗</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer__bottom">
+      <p>© {year} {site.name}</p>
+      <a href="#top">Zpět nahoru ↑</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    padding-block: 4rem 2rem;
+    border-top: 1px solid var(--line);
+    background: var(--bg);
+    font-size: 0.925rem;
+  }
+
+  .footer__grid {
+    display: grid;
+    grid-template-columns: 1.5fr repeat(3, 1fr);
+    gap: 2.5rem;
+  }
+
+  .footer__brand {
+    display: grid;
+    align-content: start;
+    justify-items: start;
+    gap: 1.25rem;
+    max-width: 32ch;
+  }
+
+  .footer__heading {
+    margin-bottom: 1rem;
+    color: var(--text-subtle);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .footer__list {
+    display: grid;
+    gap: 0.55rem;
+    list-style: none;
+    color: var(--text-muted);
+    overflow-wrap: anywhere;
+  }
+
+  .footer a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s var(--ease);
+  }
+
+  .footer a:hover {
+    color: var(--text);
+  }
+
+  .footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 3.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+    color: var(--text-subtle);
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 900px) {
+    .footer__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .footer__brand {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .footer__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

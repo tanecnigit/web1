@@ -1,0 +1,74 @@
+---
+import SectionHeader from '../SectionHeader.astro';
+import { terms } from '../../data/content.js';
+
+const blocks = [terms.storno, terms.gdpr, terms.liability];
+---
+
+<section class="section" id="podminky" aria-labelledby="podminky-title">
+  <div class="container">
+    <SectionHeader id="podminky-title" title="Storno podmínky a souhlasy" lead={terms.agreement} />
+
+    <div class="terms">
+      {
+        blocks.map((block, i) => (
+          <article class="terms__block card" data-reveal style={`--reveal-delay: ${i * 0.08}s`}>
+            <h3 class="terms__title">{block.title}</h3>
+            <ul class="terms__list">
+              {block.items.map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .terms {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  .terms__block {
+    padding: clamp(1.5rem, 3vw, 2rem);
+  }
+
+  .terms__title {
+    font-size: 1.15rem;
+    font-weight: 500;
+    margin-bottom: 1.25rem;
+  }
+
+  .terms__list {
+    display: grid;
+    gap: 0.85rem;
+    list-style: none;
+  }
+
+  .terms__list li {
+    position: relative;
+    padding-left: 1.25rem;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  .terms__list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.65em;
+    width: 5px;
+    height: 5px;
+    background: var(--gradient);
+  }
+
+  @media (max-width: 960px) {
+    .terms {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

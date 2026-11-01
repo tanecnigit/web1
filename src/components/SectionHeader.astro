@@ -1,0 +1,40 @@
+---
+interface Props {
+  id: string;
+  title: string;
+  lead?: string;
+}
+
+// Nadpis vlevo, krátký popis vpravo – rozvržení podle předlohy
+const { id, title, lead } = Astro.props;
+---
+
+<header class="section-head" data-reveal>
+  <h2 class="section-title" id={id}>{title}</h2>
+  {lead && <p class="section-lead">{lead}</p>}
+</header>
+
+<style>
+  .section-head {
+    display: grid;
+    grid-template-columns: 1fr minmax(0, 420px);
+    align-items: end;
+    gap: 1.25rem 3rem;
+    margin-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .section-lead {
+    text-align: right;
+    font-size: 0.95rem;
+  }
+
+  @media (max-width: 800px) {
+    .section-head {
+      grid-template-columns: 1fr;
+    }
+
+    .section-lead {
+      text-align: left;
+    }
+  }
+</style>

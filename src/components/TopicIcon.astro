@@ -1,0 +1,79 @@
+---
+interface Props {
+  name: 'standard' | 'latin' | 'folk' | 'etiquette';
+}
+
+// Plné siluetové ikony (48×48) s detaily vykrojenými do negativního prostoru.
+// Tvar je maska, výplň je dvoubarevný přechod z palety gradientu v úvodu.
+const { name } = Astro.props;
+const id = `topic-${name}`;
+
+// Bílá = plocha ikony, černá = vykrojený detail
+const shapes: Record<Props['name'], string> = {
+  // Taneční střevíček na podpatku
+  standard: `
+    <path fill="#fff" fill-rule="evenodd" d="M7 19c0-4.5 4.5-6 7-2.5l8 10c3 3.5 8 4.5 14 4.5h4.5c3.5 0 4 4.8.3 5.6L22 37c-3.5 0-6.5-2-8.5-4.2L12.6 40H9.4L8.2 30C7.4 26 7 23 7 19zM11 20.5c0-1.6 1.6-2 2.6-.8l6.4 8c-2.3.2-4.8-.6-6.6-2.3-1.6-1.5-2.4-3.1-2.4-4.9z"/>
+    <path fill="none" stroke="#000" stroke-width="1.4" stroke-linecap="round" d="M24.5 33.6c3 1.3 7.4 1.9 12.3 1.9"/>`,
+  // Maracas – rytmus latiny
+  latin: `
+    <g transform="rotate(-28 24 40)">
+      <ellipse cx="24" cy="13" rx="7" ry="9" fill="#fff"/>
+      <rect x="22.6" y="20" width="2.8" height="18" rx="1.4" fill="#fff"/>
+      <path fill="none" stroke="#000" stroke-width="1.4" stroke-linecap="round" d="M17.4 11c3.6 2.3 9.6 2.3 13.2 0M17.6 15.4c3.5 2.1 9.3 2.1 12.8 0"/>
+    </g>
+    <g transform="rotate(28 24 40)">
+      <ellipse cx="24" cy="13" rx="7" ry="9" fill="#fff"/>
+      <rect x="22.6" y="20" width="2.8" height="18" rx="1.4" fill="#fff"/>
+      <path fill="none" stroke="#000" stroke-width="1.4" stroke-linecap="round" d="M17.4 11c3.6 2.3 9.6 2.3 13.2 0M17.6 15.4c3.5 2.1 9.3 2.1 12.8 0"/>
+    </g>`,
+  // Lidový tulipán – národní tance
+  folk: `
+    <rect x="22.8" y="20" width="2.4" height="23" rx="1.2" fill="#fff"/>
+    <path fill="#fff" d="M24 4c-5 5-5.5 13 0 19 5.5-6 5-14 0-19z"/>
+    <path fill="#fff" d="M23 23c-7 .5-12.5-4-13-12 5 .3 9.5 3.5 13 10zM25 23c7 .5 12.5-4 13-12-5 .3-9.5 3.5-13 10z"/>
+    <path fill="#fff" d="M23 37c-6 .5-10-3-11-8 5 0 9 3 11 6zM25 37c6 .5 10-3 11-8-5 0-9 3-11 6z"/>
+    <path fill="none" stroke="#000" stroke-width="1.3" stroke-linecap="round" d="M24 9.5v9M14.6 30.4c2.4 1.2 4.8 2.9 6.8 4.9M33.4 30.4c-2.4 1.2-4.8 2.9-6.8 4.9M13.6 14.2c2.6 1.6 5.2 3.8 7.4 6.6M34.4 14.2c-2.6 1.6-5.2 3.8-7.4 6.6"/>
+    <circle cx="11" cy="6.5" r="1.9" fill="#fff"/>
+    <circle cx="37" cy="6.5" r="1.9" fill="#fff"/>`,
+  // Motýlek – společenské chování
+  etiquette: `
+    <path fill="#fff" d="M21.5 20L8.5 13.3C6.6 12.3 5 13.3 5 15.4v17.2c0 2.1 1.6 3.1 3.5 2.1L21.5 28zM26.5 20l13-6.7c1.9-1 3.5 0 3.5 2.1v17.2c0 2.1-1.6 3.1-3.5 2.1L26.5 28z"/>
+    <rect x="18.6" y="17.2" width="10.8" height="13.6" rx="3.4" fill="#000"/>
+    <rect x="20" y="18.6" width="8" height="10.8" rx="2.6" fill="#fff"/>
+    <path fill="none" stroke="#000" stroke-width="1.4" stroke-linecap="round" d="M9.5 20.2l6.5 3.2M9.5 27.8l6.5-3.2M38.5 20.2l-6.5 3.2M38.5 27.8l-6.5-3.2"/>`,
+};
+---
+
+<svg class="topic-icon" viewBox="0 0 48 48" width="46" height="46" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id={`${id}-fill`} x1="6" y1="4" x2="42" y2="44" gradientUnits="userSpaceOnUse">
+      <stop offset="0" style="stop-color: var(--tone-a)" />
+      <stop offset="1" style="stop-color: var(--tone-b)" />
+    </linearGradient>
+    <mask id={`${id}-mask`} maskUnits="userSpaceOnUse" x="0" y="0" width="48" height="48">
+      <g set:html={shapes[name]} />
+    </mask>
+  </defs>
+  <rect width="48" height="48" fill={`url(#${id}-fill)`} mask={`url(#${id}-mask)`} />
+</svg>
+
+<style>
+  .topic-icon {
+    display: block;
+    transform-origin: 50% 70%;
+  }
+
+  /* Ikona se při zobrazení karty jemně „vyhoupne“ */
+  @media (prefers-reduced-motion: no-preference) {
+    .topic-icon {
+      transition:
+        opacity 0.8s var(--ease) 0.25s,
+        transform 1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.25s;
+    }
+
+    :global(.js) :global([data-reveal]:not(.is-visible)) .topic-icon {
+      opacity: 0;
+      transform: scale(0.6) rotate(-12deg);
+    }
+  }
+</style>

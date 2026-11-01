@@ -1,0 +1,13 @@
+# Závislosti a build (vytvoří se znovu přes npm install / npm run build)
+node_modules/
+dist/
+.astro/
+
+# Lokální nastavení náhledu a originální podklady (nejsou potřeba pro build)
+.claude/
+_podklady/
+
+# Systémové soubory
+.DS_Store
+Thumbs.db
+desktop.ini

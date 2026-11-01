@@ -1,0 +1,153 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  title: string;
+  /** Položky se stejnou skupinou se otevírají výlučně (otevřením jedné se ostatní zavřou) */
+  group?: string;
+  open?: boolean;
+}
+
+const { title, group, open = false } = Astro.props;
+---
+
+<details class="accordion" data-accordion data-group={group} open={open}>
+  <summary class="accordion__summary">
+    <h3 class="accordion__title">{title}</h3>
+    <span class="accordion__icon"><Icon name="plus" size={18} /></span>
+  </summary>
+  <div class="accordion__body" data-accordion-body>
+    <div class="accordion__inner"><slot /></div>
+  </div>
+</details>
+
+<style>
+  .accordion {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .accordion__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding-block: 1.4rem;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .accordion__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .accordion__title {
+    font-size: clamp(1.02rem, 1.6vw, 1.15rem);
+    font-weight: 500;
+    line-height: 1.4;
+    transition: color 0.3s var(--ease);
+  }
+
+  .accordion__summary:hover .accordion__title {
+    color: #fff;
+  }
+
+  .accordion__icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    color: var(--text-muted);
+    transition:
+      transform 0.5s var(--ease),
+      color 0.3s var(--ease),
+      border-color 0.3s var(--ease),
+      background-color 0.3s var(--ease);
+  }
+
+  .accordion__summary:hover .accordion__icon {
+    border-color: rgba(var(--accent-rgb), 0.6);
+  }
+
+  .accordion.is-open .accordion__icon,
+  :global(html:not(.js)) .accordion[open] .accordion__icon {
+    transform: rotate(135deg);
+    color: var(--accent);
+    border-color: rgba(var(--accent-rgb), 0.5);
+    background: rgba(var(--accent-rgb), 0.08);
+  }
+
+  .accordion__body {
+    overflow: hidden;
+  }
+
+  .accordion__inner {
+    padding: 0 3.5rem 1.5rem 0;
+    color: var(--text-muted);
+    font-weight: 300;
+    transition:
+      opacity 0.45s var(--ease),
+      transform 0.45s var(--ease);
+  }
+
+  :global(.js) .accordion:not(.is-open) .accordion__inner {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  @media (max-width: 560px) {
+    .accordion__inner {
+      padding-right: 0;
+    }
+  }
+</style>
+
+<script>
+  // Plynulé otevírání a zavírání – animuje se výška obsahu
+  const DURATION = 450;
+  const EASING = 'cubic-bezier(0.22, 1, 0.36, 1)';
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const items = [...document.querySelectorAll<HTMLDetailsElement>('[data-accordion]')];
+
+  items.forEach((item) => item.classList.toggle('is-open', item.open));
+
+  const animate = (item: HTMLDetailsElement, open: boolean) => {
+    const body = item.querySelector<HTMLElement>('[data-accordion-body]')!;
+    item.getAnimations({ subtree: true }).forEach((a) => a.cancel());
+
+    if (open) {
+      item.open = true;
+      item.classList.add('is-open');
+      if (reduced) return;
+      body.animate([{ height: '0px' }, { height: `${body.scrollHeight}px` }], { duration: DURATION, easing: EASING });
+    } else {
+      item.classList.remove('is-open');
+      if (reduced) {
+        item.open = false;
+        return;
+      }
+      const anim = body.animate([{ height: `${body.offsetHeight}px` }, { height: '0px' }], {
+        duration: DURATION,
+        easing: EASING,
+      });
+      anim.onfinish = () => {
+        if (!item.classList.contains('is-open')) item.open = false;
+      };
+    }
+  };
+
+  items.forEach((item) => {
+    item.querySelector('summary')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      const opening = !item.classList.contains('is-open');
+      if (opening && item.dataset.group) {
+        items
+          .filter((other) => other !== item && other.dataset.group === item.dataset.group && other.classList.contains('is-open'))
+          .forEach((other) => animate(other, false));
+      }
+      animate(item, opening);
+    });
+  });
+</script>

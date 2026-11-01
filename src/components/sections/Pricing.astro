@@ -1,0 +1,167 @@
+---
+import SectionHeader from '../SectionHeader.astro';
+import Button from '../Button.astro';
+import { course, venue, cta } from '../../data/content.js';
+
+const details = [
+  { label: 'Zahájení', value: course.startLabel, sub: 'první lekce' },
+  { label: 'Kdy', value: `Pondělí ${course.time}`, sub: 'jednou týdně' },
+  { label: 'Kde', value: venue.name, sub: `${venue.city} (${venue.formerly})` },
+  { label: 'Rozsah', value: `${course.lessons} lekcí`, sub: 'včetně prodloužené a závěrečné' },
+];
+---
+
+<section class="section" id="termin" aria-labelledby="termin-title">
+  <div class="container">
+    <SectionHeader id="termin-title" title="Termín a cena" lead="Kurz začíná v září 2026. Všechny důležité informace na jednom místě." />
+
+    <div class="pricing">
+      <dl class="details" data-reveal>
+        {
+          details.map((d) => (
+            <div class="detail">
+              <dt class="label">{d.label}</dt>
+              <dd>
+                <span class="detail__value">{d.value}</span>
+                <span class="detail__sub">{d.sub}</span>
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+
+      <div class="price card" data-reveal style="--reveal-delay: 0.1s">
+        <span class="glyph" aria-hidden="true"></span>
+        <p class="label">Cena kurzu</p>
+        <p class="price__value">{course.price}</p>
+        <p class="price__note">{course.priceNote}</p>
+        <ul class="price__list">
+          <li>{course.lessons} lekcí po dvou hodinách</li>
+          <li>Prodloužená i závěrečná lekce</li>
+          <li>Tance i společenské chování</li>
+        </ul>
+        <p class="price__deposit">
+          Místo v kurzu je potvrzené po připsání zápisného (zálohy) na účet.
+          {
+            course.deposit ? (
+              <>Zápisné činí {course.deposit}.</>
+            ) : (
+              <span class="placeholder">{course.depositPlaceholder}</span>
+            )
+          }
+        </p>
+        <Button href={cta.href} variant="waves" block>{cta.label}</Button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .pricing {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: clamp(1.5rem, 4vw, 3rem);
+    align-items: start;
+  }
+
+  .details {
+    margin: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .detail {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 1rem;
+    padding-block: 1.5rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .detail dt {
+    padding-top: 0.25rem;
+  }
+
+  .detail dd {
+    display: grid;
+    gap: 0.2rem;
+    margin: 0;
+  }
+
+  .detail__value {
+    font-size: 1.15rem;
+    font-weight: 500;
+  }
+
+  .detail__sub {
+    color: var(--text-subtle);
+    font-size: 0.875rem;
+  }
+
+  .price {
+    display: grid;
+    gap: 0.5rem;
+    padding: clamp(1.5rem, 4vw, 2.25rem);
+  }
+
+  .price__value {
+    margin-top: 1rem;
+    font-size: clamp(2.75rem, 5vw, 3.5rem);
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+
+  .price__note {
+    color: var(--text-subtle);
+    font-size: 0.875rem;
+  }
+
+  .price__list {
+    display: grid;
+    gap: 0.6rem;
+    margin-block: 1.25rem;
+    padding-block: 1.25rem;
+    border-block: 1px solid var(--line);
+    list-style: none;
+    font-size: 0.9rem;
+  }
+
+  .price__list li {
+    display: flex;
+    gap: 0.7rem;
+    align-items: baseline;
+    color: var(--text-muted);
+  }
+
+  .price__list li::before {
+    content: '';
+    flex: none;
+    width: 5px;
+    height: 5px;
+    background: var(--gradient);
+    transform: translateY(-2px);
+  }
+
+  .price__deposit {
+    margin-bottom: 1.25rem;
+    color: var(--text-subtle);
+    font-size: 0.85rem;
+  }
+
+  .price__deposit .placeholder {
+    display: block;
+    margin-top: 0.3rem;
+  }
+
+  @media (max-width: 960px) {
+    .pricing {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .detail {
+      grid-template-columns: 1fr;
+      gap: 0.4rem;
+    }
+  }
+</style>

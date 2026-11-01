@@ -1,0 +1,60 @@
+---
+import Accordion from '../Accordion.astro';
+import { faq } from '../../data/content.js';
+---
+
+<section class="section" id="otazky" aria-labelledby="otazky-title">
+  <div class="container faq">
+    <header class="faq__head" data-reveal>
+      <h2 class="section-title" id="otazky-title">{faq.title}</h2>
+      <p class="muted">
+        Nenašli jste odpověď? <a href="#kontakt">Ozvěte se nám.</a>
+      </p>
+    </header>
+
+    <div class="faq__list" data-reveal style="--reveal-delay: 0.1s">
+      {
+        faq.items.map((item, i) => (
+          <Accordion title={item.q} group="faq" open={i === 0}>
+            <p>{item.a}</p>
+          </Accordion>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq {
+    display: grid;
+    grid-template-columns: 1fr 1.7fr;
+    gap: clamp(2rem, 6vw, 5rem);
+    align-items: start;
+  }
+
+  .faq__head {
+    position: sticky;
+    top: calc(var(--header-h) + 2rem);
+    display: grid;
+    gap: 1rem;
+  }
+
+  .faq__head a {
+    color: var(--text);
+    text-underline-offset: 3px;
+  }
+
+  .faq__list {
+    border-top: 1px solid var(--line);
+  }
+
+  @media (max-width: 900px) {
+    .faq {
+      grid-template-columns: 1fr;
+    }
+
+    .faq__head {
+      position: static;
+    }
+  }
+</style>

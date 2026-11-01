@@ -1,0 +1,503 @@
+---
+import Icon from '../Icon.astro';
+import Button from '../Button.astro';
+import GradientBackground from '../GradientBackground.astro';
+import { signup, signupForm, contact, terms, site, closing } from '../../data/content.js';
+
+const fields = [
+  { name: 'jmeno', label: 'Jméno', placeholder: 'Např. Jana', autocomplete: 'given-name', required: true },
+  { name: 'prijmeni', label: 'Příjmení', placeholder: 'Např. Nováková', autocomplete: 'family-name', required: true },
+  { name: 'datum_narozeni', label: 'Datum narození', type: 'date', autocomplete: 'bday', required: true },
+  { name: 'skola', label: 'Škola', placeholder: 'Název vaší střední školy', autocomplete: 'organization', required: true },
+  { name: 'adresa', label: 'Adresa', placeholder: 'Ulice a číslo popisné, PSČ, obec', autocomplete: 'street-address', required: true, wide: true },
+  { name: 'email', label: 'E-mail', type: 'email', placeholder: 'jana.novakova@email.cz', autocomplete: 'email', required: true },
+  { name: 'telefon', label: 'Mobilní telefon', type: 'tel', placeholder: '777 123 456', autocomplete: 'tel', required: true },
+];
+---
+
+<!-- Závěrečná sekce webu: velký nadpis a přihláška -->
+<section class="signup-section" id="prihlaska" aria-labelledby="prihlaska-title">
+  <div class="container">
+    <header class="closing" data-reveal>
+      <h2 class="closing__title display" id="prihlaska-title">
+        {closing.lines.map((line) => <span>{line}</span>)}
+      </h2>
+      <p class="closing__lead">{signup.lead}</p>
+    </header>
+
+    <div class="signup">
+      <GradientBackground animated={false} seed={7} class="signup__bg" />
+      <form
+        class="form card"
+        data-signup-form
+        data-endpoint={signupForm.endpoint ?? ''}
+        data-email={contact.email}
+        data-subject={`Přihláška – ${site.courseName}`}
+        novalidate
+        data-reveal
+      >
+        <div class="form__grid">
+          {
+            fields.map((f) => (
+              <div class:list={['field', { 'field--wide': f.wide }]}>
+                <label for={`f-${f.name}`}>
+                  {f.label}
+                  {f.required && <span aria-hidden="true"> *</span>}
+                </label>
+                <input
+                  id={`f-${f.name}`}
+                  name={f.name}
+                  type={f.type ?? 'text'}
+                  autocomplete={f.autocomplete}
+                  placeholder={f.placeholder}
+                  required={f.required}
+                  aria-describedby={`e-${f.name}`}
+                />
+                <p class="field__error" id={`e-${f.name}`} />
+              </div>
+            ))
+          }
+          <div class="field field--wide">
+            <label for="f-poznamka">Poznámka <span class="field__opt">(nepovinné)</span></label>
+            <textarea id="f-poznamka" name="poznamka" rows="3" placeholder="Např. s kým chcete do kurzu chodit nebo na co se chcete zeptat"></textarea>
+          </div>
+        </div>
+
+        <div class="consent">
+          <input id="f-souhlas" name="souhlas" type="checkbox" required aria-describedby="e-souhlas" />
+          <label for="f-souhlas">
+            {terms.agreement} <a href="#podminky">Zobrazit podmínky</a>
+            <span aria-hidden="true"> *</span>
+          </label>
+          <p class="field__error" id="e-souhlas"></p>
+        </div>
+
+        <div class="form__footer">
+          <Button type="submit" class="form__submit">Odeslat přihlášku</Button>
+          <p class="form__hint">
+            {
+              signupForm.endpoint
+                ? 'Pole označená * jsou povinná.'
+                : 'Pole označená * jsou povinná. Po odeslání se otevře váš e-mailový program s vyplněnou přihláškou – stačí ji odeslat.'
+            }
+          </p>
+        </div>
+        <p class="form__status" role="status" aria-live="polite" data-status></p>
+      </form>
+
+      <aside class="contact-card" aria-labelledby="kontakt-prihlasky" data-reveal style="--reveal-delay: 0.1s">
+        <p class="label">Přihlášky a platby</p>
+        <h3 class="contact-card__name" id="kontakt-prihlasky">{contact.person}</h3>
+        <ul class="contact-card__list">
+          <li>
+            <Icon name="phone" size={20} />
+            <a href={contact.phoneHref}>{contact.phone}</a>
+          </li>
+          <li>
+            <Icon name="mail" size={20} />
+            <a href={`mailto:${contact.email}`}>{contact.email}</a>
+          </li>
+          <li>
+            <Icon name="user" size={20} />
+            <span>IČO {contact.ico}</span>
+          </li>
+        </ul>
+        <p class="contact-card__note">
+          Raději telefonicky? Zavolejte nebo napište a přihlášku vyřídíme spolu.
+        </p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<style>
+  .signup-section {
+    padding-block: clamp(4rem, 9vw, 7rem) clamp(4rem, 8vw, 6rem);
+  }
+
+  /* Velká typografie – jako v předloze */
+  .closing {
+    display: grid;
+    justify-items: center;
+    gap: clamp(1.5rem, 3vw, 2.25rem);
+    margin-bottom: clamp(3rem, 6vw, 4.5rem);
+    text-align: center;
+  }
+
+  .closing__title {
+    display: grid;
+    justify-items: center;
+    font-size: clamp(3.25rem, 11vw, 9rem);
+    line-height: 0.95;
+    letter-spacing: -0.045em;
+  }
+
+  .closing__title span:first-child {
+    transform: translateX(-0.6em);
+  }
+
+  .closing__title span:last-child {
+    transform: translateX(0.6em);
+  }
+
+  .closing__lead {
+    max-width: 46ch;
+    color: var(--text-muted);
+    font-size: clamp(1rem, 1.4vw, 1.15rem);
+    font-weight: 300;
+  }
+
+  /* Panel se statickým gradientem (stejný jako v úvodu, ale bez animace) */
+  .signup {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    overflow: clip;
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    align-items: start;
+    padding: clamp(1rem, 4vw, 3.5rem);
+    border-radius: 24px;
+    border: 1px solid var(--line);
+  }
+
+  .signup :global(.signup__bg) {
+    z-index: -1;
+  }
+
+  /* Tmavé sklo nad gradientem – barvy prosvítají, text zůstává čitelný */
+  .form,
+  .contact-card {
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(8, 8, 12, 0.58);
+    backdrop-filter: blur(24px) saturate(140%);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.7);
+  }
+
+  .form {
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+  }
+
+  .form:hover {
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .form__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.1rem 1rem;
+  }
+
+  .field {
+    display: grid;
+    gap: 0.4rem;
+    align-content: start;
+  }
+
+  .field--wide {
+    grid-column: 1 / -1;
+  }
+
+  .field label {
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .field label span[aria-hidden],
+  .consent label span[aria-hidden] {
+    color: var(--accent);
+  }
+
+  .field__opt {
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 400;
+  }
+
+  .field input,
+  .field textarea {
+    width: 100%;
+    min-height: 50px;
+    padding: 0.75rem 0.95rem;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: var(--radius-sm);
+    /* Skleněná pole: světlý závoj nad barevným pozadím, bílý text */
+    background: rgba(255, 255, 255, 0.09);
+    color: #fff;
+    font-size: 1rem;
+    transition:
+      background-color 0.2s var(--ease),
+      border-color 0.2s var(--ease),
+      box-shadow 0.2s var(--ease);
+  }
+
+  .field input::placeholder,
+  .field textarea::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  /* Automatické vyplňování v prohlížeči nesmí pole přebarvit na bílo */
+  .field input:-webkit-autofill {
+    -webkit-text-fill-color: #fff;
+    box-shadow: 0 0 0 1000px rgba(46, 38, 72, 0.95) inset;
+    caret-color: #fff;
+  }
+
+  .field textarea {
+    resize: vertical;
+  }
+
+  .field input:hover,
+  .field textarea:hover {
+    background: rgba(255, 255, 255, 0.13);
+    border-color: rgba(255, 255, 255, 0.32);
+  }
+
+  .field input:focus,
+  .field textarea:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.35);
+  }
+
+  .field input[aria-invalid='true'] {
+    border-color: #e5484d;
+    box-shadow: 0 0 0 3px rgba(229, 72, 77, 0.3);
+  }
+
+  .field input[type='date'] {
+    color-scheme: dark;
+  }
+
+  .field__error {
+    min-height: 0;
+    color: #ff9a9a;
+    font-size: 0.82rem;
+  }
+
+  .field__error:empty {
+    display: none;
+  }
+
+  .consent {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.4rem 0.8rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .consent input {
+    width: 22px;
+    height: 22px;
+    margin: 0.1rem 0 0;
+    accent-color: var(--accent);
+  }
+
+  .consent label {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+  }
+
+  .consent a {
+    color: var(--text);
+    text-underline-offset: 3px;
+  }
+
+  .consent .field__error {
+    grid-column: 2;
+  }
+
+  .form__footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+    margin-top: 1.75rem;
+  }
+
+  .form__hint {
+    flex: 1 1 240px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.82rem;
+  }
+
+  .form__status:not(:empty) {
+    margin-top: 1.25rem;
+    padding: 0.9rem 1rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--line-strong);
+    background: var(--surface-2);
+    font-size: 0.95rem;
+  }
+
+  .form__status.is-error {
+    background: rgba(255, 122, 122, 0.12);
+    color: #ffc2c2;
+  }
+
+  .contact-card {
+    position: sticky;
+    top: calc(var(--header-h) + 1.5rem);
+    display: grid;
+    gap: 1.1rem;
+    padding: clamp(1.5rem, 4vw, 2.25rem);
+    border-radius: var(--radius-lg);
+  }
+
+  .contact-card .label {
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  .contact-card__name {
+    font-size: 1.5rem;
+    letter-spacing: -0.02em;
+  }
+
+  .contact-card__list {
+    display: grid;
+    gap: 0.85rem;
+    list-style: none;
+  }
+
+  .contact-card__list li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    overflow-wrap: anywhere;
+  }
+
+  .contact-card__list :global(.icon) {
+    flex: none;
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  .contact-card__list a {
+    font-weight: 600;
+    text-decoration: none;
+    background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+    transition: background-size 0.3s var(--ease);
+  }
+
+  .contact-card__list a:hover {
+    background-size: 100% 1px;
+  }
+
+  .contact-card__note {
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--line);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 960px) {
+    .signup {
+      grid-template-columns: 1fr;
+    }
+
+    .contact-card {
+      position: static;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .closing__title span:first-child,
+    .closing__title span:last-child {
+      transform: none;
+    }
+
+    .form__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .form__footer :global(.form__submit) {
+      width: 100%;
+    }
+  }
+</style>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-signup-form]');
+
+  if (form) {
+    const status = form.querySelector<HTMLElement>('[data-status]')!;
+    const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const { endpoint, email, subject } = form.dataset;
+
+    const messages: Record<string, string> = {
+      valueMissing: 'Toto pole je povinné.',
+      typeMismatch: 'Zkontrolujte prosím formát.',
+    };
+
+    const validate = (input: HTMLInputElement) => {
+      const error = form.querySelector<HTMLElement>(`#e-${input.name}`);
+      let message = '';
+      if (input.validity.valueMissing) {
+        message = input.type === 'checkbox' ? 'Pro odeslání je potřeba souhlas s podmínkami.' : messages.valueMissing;
+      } else if (input.validity.typeMismatch) {
+        message = input.type === 'email' ? 'Zadejte platný e-mail.' : messages.typeMismatch;
+      } else if (input.type === 'tel' && input.value.replace(/\D/g, '').length < 9) {
+        message = 'Zadejte platné telefonní číslo.';
+      }
+      input.setAttribute('aria-invalid', String(Boolean(message)));
+      if (error) error.textContent = message;
+      return !message;
+    };
+
+    const inputs = [...form.querySelectorAll<HTMLInputElement>('input')];
+    inputs.forEach((input) =>
+      input.addEventListener(input.type === 'checkbox' ? 'change' : 'blur', () => {
+        if (input.hasAttribute('aria-invalid')) validate(input);
+      }),
+    );
+
+    const labelFor = (name: string) =>
+      form.querySelector(`label[for="f-${name}"]`)?.firstChild?.textContent?.trim() ?? name;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      status.textContent = '';
+      status.classList.remove('is-error');
+
+      const invalid = inputs.filter((input) => !validate(input));
+      if (invalid.length) {
+        invalid[0].focus();
+        return;
+      }
+
+      const data = Object.fromEntries(new FormData(form)) as Record<string, string>;
+
+      if (!endpoint) {
+        // Bez nastaveného příjmu přihlášek se otevře e-mailový klient s vyplněnou zprávou
+        const body = Object.entries(data)
+          .filter(([key]) => key !== 'souhlas')
+          .map(([key, value]) => `${labelFor(key)}: ${value}`)
+          .concat('', 'Souhlasím se storno podmínkami, zpracováním osobních údajů a podmínkami odpovědnosti za škody.')
+          .join('\n');
+        window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject ?? '')}&body=${encodeURIComponent(body)}`;
+        status.textContent = 'Otevřeli jsme váš e-mailový program s vyplněnou přihláškou. Pokud se neotevřel, napište nám prosím přímo na ' + email + '.';
+        return;
+      }
+
+      submit.disabled = true;
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify(data),
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        form.reset();
+        status.textContent = 'Děkujeme, přihláška byla odeslána. Brzy se vám ozveme.';
+      } catch {
+        status.classList.add('is-error');
+        status.textContent = `Přihlášku se nepodařilo odeslat. Zkuste to prosím znovu, nebo nám napište na ${email}.`;
+      } finally {
+        submit.disabled = false;
+      }
+    });
+  }
+</script>

@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# TODO: ověřit finální doménu
+Sitemap: https://www.tanecninovyjicin.cz/sitemap.xml

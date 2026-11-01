@@ -1,0 +1,235 @@
+---
+import SectionHeader from '../SectionHeader.astro';
+import { lessonPlan, course } from '../../data/content.js';
+
+// Šířka fáze odpovídá počtu lekcí, slavnostní lekce dostanou víc místa pro text
+const phases = lessonPlan.steps.map((step) => ({
+  ...step,
+  lessons: Array.from({ length: step.to - step.from + 1 }, (_, i) => step.from + i),
+}));
+const columns = phases.map((p) => (p.highlight ? '2.2fr' : `${p.lessons.length}fr`)).join(' ');
+---
+
+<section class="section" id="prubeh" aria-labelledby="prubeh-title">
+  <div class="container">
+    <SectionHeader id="prubeh-title" title={lessonPlan.title} lead={lessonPlan.lead} />
+
+    <ol class="timeline" style={`--columns: ${columns}`} aria-label={`Průběh kurzu – ${course.lessons} lekcí`}>
+      {
+        phases.map((phase, i) => (
+          <li
+            class:list={['phase', { 'phase--special': phase.highlight }]}
+            data-reveal
+            style={`--reveal-delay: ${i * 0.1}s`}
+          >
+            <div class="phase__dots" aria-hidden="true">
+              {phase.lessons.map((n) => (
+                <span class="phase__dot">{n}</span>
+              ))}
+            </div>
+            <div class="phase__body">
+              <p class="phase__range">
+                {phase.range}
+                {phase.highlight && <span class="phase__badge">Slavnostní</span>}
+              </p>
+              <h3 class="phase__title">{phase.title}</h3>
+              <p class="phase__text">{phase.text}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+
+    <ul class="legend" aria-label="Vysvětlivky">
+      <li><span class="legend__dot"></span> Běžná lekce · pondělí {course.time}</li>
+      <li><span class="legend__dot legend__dot--special"></span> Slavnostní lekce</li>
+    </ul>
+  </div>
+</section>
+
+<style>
+  .timeline {
+    position: relative;
+    display: grid;
+    grid-template-columns: var(--columns);
+    gap: 0.75rem;
+    list-style: none;
+  }
+
+  /* Spojnice přes všechny lekce */
+  .timeline::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    height: 1px;
+    background: linear-gradient(90deg, var(--line-strong), rgba(var(--accent-rgb), 0.6) 46%, var(--line-strong) 54%, rgba(var(--accent-rgb), 0.6));
+  }
+
+  .phase {
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: 1.25rem;
+  }
+
+  .phase__dots {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.4rem;
+  }
+
+  .phase__dot {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong);
+    background: var(--bg);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .phase--special .phase__dots {
+    justify-content: center;
+  }
+
+  .phase--special .phase__dot {
+    width: 44px;
+    height: 44px;
+    margin-top: -2px;
+    border-color: transparent;
+    background: var(--gradient);
+    color: #020202;
+    font-weight: 600;
+    box-shadow: 0 0 0 6px rgba(var(--accent-rgb), 0.14);
+  }
+
+  .phase__body {
+    display: grid;
+    align-content: start;
+    gap: 0.45rem;
+    height: 100%;
+    padding: 1.25rem 1.25rem 1.5rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+
+  .phase--special .phase__body {
+    border-color: rgba(var(--accent-rgb), 0.45);
+    background: linear-gradient(180deg, rgba(var(--accent-rgb), 0.1), var(--surface) 70%);
+  }
+
+  .phase__range {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-subtle);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .phase--special .phase__range {
+    color: var(--accent);
+  }
+
+  .phase__badge {
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    background: rgba(var(--accent-rgb), 0.16);
+    color: #ffd3e6;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+  }
+
+  .phase__title {
+    font-size: 1.15rem;
+    font-weight: 500;
+  }
+
+  .phase__text {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 300;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 2rem;
+    margin-top: 2rem;
+    list-style: none;
+    color: var(--text-subtle);
+    font-size: 0.85rem;
+  }
+
+  .legend li {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .legend__dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong);
+  }
+
+  .legend__dot--special {
+    border-color: transparent;
+    background: var(--gradient);
+  }
+
+  /* Tablet a mobil: svislá časová osa */
+  @media (max-width: 960px) {
+    .timeline {
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+      padding-left: 0;
+    }
+
+    .timeline::before {
+      top: 20px;
+      bottom: 20px;
+      left: 19px;
+      right: auto;
+      width: 1px;
+      height: auto;
+      background: linear-gradient(180deg, var(--line-strong), rgba(var(--accent-rgb), 0.6));
+    }
+
+    .phase {
+      grid-template-columns: 40px 1fr;
+      gap: 1rem;
+    }
+
+    .phase__dots,
+    .phase--special .phase__dots {
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 0.35rem;
+    }
+
+    .phase__dot {
+      width: 40px;
+      height: 32px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+    }
+
+    .phase--special .phase__dot {
+      width: 40px;
+      height: 40px;
+      margin: 0;
+      border-radius: 50%;
+    }
+  }
+</style>
