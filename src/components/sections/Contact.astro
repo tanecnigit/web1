@@ -4,7 +4,10 @@ import { venue, contact, course } from '../../data/content.js';
 
 <section class="section" id="kontakt" aria-labelledby="kontakt-title">
   <div class="container">
-    <h2 class="section-title contact__heading" id="kontakt-title" data-reveal>Místo konání a kontakt</h2>
+    <div class="contact__heading" data-reveal>
+      <p class="badge">Kontakt</p>
+      <h2 class="section-title" id="kontakt-title">Místo konání a kontakt</h2>
+    </div>
 
     <div class="contact">
       <div class="contact__col" data-reveal>
@@ -37,6 +40,8 @@ import { venue, contact, course } from '../../data/content.js';
 
 <style>
   .contact__heading {
+    display: grid;
+    gap: 1.1rem;
     margin-bottom: clamp(2rem, 4vw, 3rem);
   }
 

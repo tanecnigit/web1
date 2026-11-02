@@ -13,7 +13,7 @@ const details = [
 
 <section class="section" id="termin" aria-labelledby="termin-title">
   <div class="container">
-    <SectionHeader id="termin-title" title="Termín a cena" lead="Kurz začíná v září 2026. Všechny důležité informace na jednom místě." />
+    <SectionHeader id="termin-title" badge="Přehled kurzu" title="Termín a cena" lead="Kurz začíná v září 2026. Všechny důležité informace na jednom místě." />
 
     <div class="pricing">
       <dl class="details" data-reveal>
@@ -133,12 +133,11 @@ const details = [
   }
 
   .price__list li::before {
-    content: '';
+    content: '+';
     flex: none;
-    width: 5px;
-    height: 5px;
-    background: var(--gradient);
-    transform: translateY(-2px);
+    width: 1ch;
+    color: var(--text);
+    font-weight: 500;
   }
 
   .price__deposit {

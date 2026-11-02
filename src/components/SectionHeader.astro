@@ -1,16 +1,21 @@
 ---
 interface Props {
   id: string;
+  /** Krátký štítek („pilulka“) nad nadpisem */
+  badge?: string;
   title: string;
   lead?: string;
 }
 
 // Nadpis vlevo, krátký popis vpravo – rozvržení podle předlohy
-const { id, title, lead } = Astro.props;
+const { id, badge, title, lead } = Astro.props;
 ---
 
 <header class="section-head" data-reveal>
-  <h2 class="section-title" id={id}>{title}</h2>
+  <div class="section-head__main">
+    {badge && <p class="badge">{badge}</p>}
+    <h2 class="section-title" id={id}>{title}</h2>
+  </div>
   {lead && <p class="section-lead">{lead}</p>}
 </header>
 
@@ -21,6 +26,12 @@ const { id, title, lead } = Astro.props;
     align-items: end;
     gap: 1.25rem 3rem;
     margin-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .section-head__main {
+    display: grid;
+    gap: 1.1rem;
+    justify-items: start;
   }
 
   .section-lead {

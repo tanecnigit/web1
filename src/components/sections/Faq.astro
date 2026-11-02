@@ -6,6 +6,7 @@ import { faq } from '../../data/content.js';
 <section class="section" id="otazky" aria-labelledby="otazky-title">
   <div class="container faq">
     <header class="faq__head" data-reveal>
+      <p class="badge">Časté dotazy</p>
       <h2 class="section-title" id="otazky-title">{faq.title}</h2>
       <p class="muted">
         Nenašli jste odpověď? <a href="#kontakt">Ozvěte se nám.</a>
@@ -45,7 +46,7 @@ import { faq } from '../../data/content.js';
   }
 
   .faq__list {
-    border-top: 1px solid var(--line);
+    display: grid;
   }
 
   @media (max-width: 900px) {

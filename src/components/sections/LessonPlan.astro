@@ -12,7 +12,7 @@ const columns = phases.map((p) => (p.highlight ? '2.2fr' : `${p.lessons.length}f
 
 <section class="section" id="prubeh" aria-labelledby="prubeh-title">
   <div class="container">
-    <SectionHeader id="prubeh-title" title={lessonPlan.title} lead={lessonPlan.lead} />
+    <SectionHeader id="prubeh-title" badge="Průběh kurzu" title={lessonPlan.title} lead={lessonPlan.lead} />
 
     <ol class="timeline" style={`--columns: ${columns}`} aria-label={`Průběh kurzu – ${course.lessons} lekcí`}>
       {
@@ -32,7 +32,7 @@ const columns = phases.map((p) => (p.highlight ? '2.2fr' : `${p.lessons.length}f
                 {phase.range}
                 {phase.highlight && <span class="phase__badge">Slavnostní</span>}
               </p>
-              <h3 class="phase__title">{phase.title}</h3>
+              <h3 class="phase__title"><span class="phase__num">{String(i + 1).padStart(2, '0')}.</span> {phase.title}</h3>
               <p class="phase__text">{phase.text}</p>
             </div>
           </li>
@@ -147,6 +147,11 @@ const columns = phases.map((p) => (p.highlight ? '2.2fr' : `${p.lessons.length}f
     color: #ffd3e6;
     font-size: 0.62rem;
     letter-spacing: 0.1em;
+  }
+
+  .phase__num {
+    color: var(--text-subtle);
+    font-variant-numeric: tabular-nums;
   }
 
   .phase__title {

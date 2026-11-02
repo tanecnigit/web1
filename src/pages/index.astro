@@ -35,10 +35,16 @@ import Contact from '../components/sections/Contact.astro';
 </BaseLayout>
 
 <style>
+  /* Tmavá plocha s jemnou mřížkou */
   .stack {
     position: relative;
     z-index: 1;
-    background: var(--bg);
+    background-color: var(--bg);
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 96px 96px;
+    background-position: center top;
     border-top: 1px solid var(--line);
     border-radius: 28px 28px 0 0;
     box-shadow: 0 -40px 80px rgba(0, 0, 0, 0.55);
