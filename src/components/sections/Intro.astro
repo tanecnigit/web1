@@ -25,6 +25,10 @@ import { intro, facts, course, cta } from '../../data/content.js';
       </div>
 
       <figure class="intro__media" data-reveal style="--reveal-delay: 0.1s">
+        <span class="intro__node intro__node--tl" aria-hidden="true"></span>
+        <span class="intro__node intro__node--tr" aria-hidden="true"></span>
+        <span class="intro__node intro__node--bl" aria-hidden="true"></span>
+        <span class="intro__node intro__node--br" aria-hidden="true"></span>
         <Picture
           src={intro.image.src}
           alt={intro.image.alt}
@@ -94,18 +98,49 @@ import { intro, facts, course, cta } from '../../data/content.js';
     font-weight: 500;
   }
 
+  /* Fotka v rámečku z konstrukčních linek se čtverečky v rozích, dole se ztrácí do tmy */
   .intro__media {
+    position: relative;
     margin: 0;
+    border: 1px solid var(--line);
   }
 
   .intro__media :global(.intro__img) {
     width: 100%;
     aspect-ratio: 4 / 3;
     object-fit: cover;
-    border-radius: var(--radius-lg);
-    /* Nahoře čistá fotka, dole jemné prolnutí do pozadí */
-    -webkit-mask-image: linear-gradient(to bottom, #000 55%, rgba(0, 0, 0, 0.55) 100%);
-    mask-image: linear-gradient(to bottom, #000 55%, rgba(0, 0, 0, 0.55) 100%);
+    object-position: 50% 40%;
+    -webkit-mask-image: linear-gradient(to bottom, #000 35%, rgba(0, 0, 0, 0.45) 68%, rgba(0, 0, 0, 0) 97%);
+    mask-image: linear-gradient(to bottom, #000 35%, rgba(0, 0, 0, 0.45) 68%, rgba(0, 0, 0, 0) 97%);
+  }
+
+  .intro__node {
+    position: absolute;
+    z-index: 1;
+    width: 9px;
+    height: 9px;
+    border: 1px solid var(--line-strong);
+    background: var(--bg);
+  }
+
+  .intro__node--tl {
+    top: -5px;
+    left: -5px;
+  }
+
+  .intro__node--tr {
+    top: -5px;
+    right: -5px;
+  }
+
+  .intro__node--bl {
+    bottom: -5px;
+    left: -5px;
+  }
+
+  .intro__node--br {
+    bottom: -5px;
+    right: -5px;
   }
 
   .facts {
