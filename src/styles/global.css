@@ -40,7 +40,8 @@
   --radius-lg: 18px;
 
   --container: 1240px;
-  --gutter: clamp(1rem, 4vw, 3rem);
+  --gutter: clamp(0.75rem, 3vw, 2.5rem);
+  --frame-pad: clamp(1rem, 3.5vw, 3.5rem);
   --section-y: clamp(4.5rem, 10vw, 8rem);
 
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -176,11 +177,25 @@ html.lenis {
 }
 
 /* ───────── Rozvržení ───────── */
+/* Obsah sedí uvnitř konstrukčních linek s vnitřním odsazením (--frame-pad),
+   aby texty a prvky nebyly přilepené k linkám */
 .container {
   width: 100%;
   max-width: calc(var(--container) + 2 * var(--gutter));
   margin-inline: auto;
-  padding-inline: var(--gutter);
+  padding-inline: calc(var(--gutter) + var(--frame-pad));
+}
+
+/* Svislé konstrukční linky podél okrajů obsahu – použité v úvodu, sekcích i patičce */
+.frame-lines {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: var(--frame);
+  transform: translateX(-50%);
+  border-inline: 1px solid var(--line);
+  pointer-events: none;
 }
 
 /* Šířka obsahu – podle ní vedou svislé konstrukční linky */
