@@ -2,6 +2,7 @@
 import Icon from '../Icon.astro';
 import Button from '../Button.astro';
 import GradientBackground from '../GradientBackground.astro';
+import Corners from '../Corners.astro';
 import { signup, signupForm, contact, terms, site, closing } from '../../data/content.js';
 
 const fields = [
@@ -26,6 +27,8 @@ const fields = [
       <p class="closing__lead">{signup.lead}</p>
     </header>
 
+    <div class="signup-frame">
+    <Corners />
     <div class="signup">
       <GradientBackground animated={false} seed={7} class="signup__bg" />
       <form
@@ -108,6 +111,7 @@ const fields = [
         </p>
       </aside>
     </div>
+    </div>
   </div>
 </section>
 
@@ -149,6 +153,10 @@ const fields = [
     font-weight: 300;
   }
 
+  .signup-frame {
+    position: relative;
+  }
+
   /* Panel se statickým gradientem (stejný jako v úvodu, ale bez animace) */
   .signup {
     position: relative;
@@ -160,7 +168,6 @@ const fields = [
     gap: clamp(1.5rem, 3vw, 2.5rem);
     align-items: start;
     padding: clamp(1rem, 4vw, 3.5rem);
-    border-radius: 24px;
     border: 1px solid var(--line);
   }
 

@@ -1,6 +1,7 @@
 ---
 import { Picture } from 'astro:assets';
 import SectionHeader from '../SectionHeader.astro';
+import Corners from '../Corners.astro';
 import { lecturers } from '../../data/content.js';
 ---
 
@@ -13,6 +14,7 @@ import { lecturers } from '../../data/content.js';
         lecturers.people.map((person, i) => (
           <li class="person" data-reveal style={`--reveal-delay: ${i * 0.1}s`}>
             <figure class="person__photo">
+              <Corners />
               <Picture
                 src={person.photo}
                 alt={`Portrét: ${person.name}`}
@@ -43,10 +45,10 @@ import { lecturers } from '../../data/content.js';
     list-style: none;
   }
 
+  /* Fotka v rámečku z linek se čtverečky v rozích */
   .person__photo {
+    position: relative;
     margin: 0;
-    overflow: hidden;
-    border-radius: var(--radius-lg);
     border: 1px solid var(--line);
     background: var(--surface);
   }
@@ -56,11 +58,11 @@ import { lecturers } from '../../data/content.js';
     aspect-ratio: 4 / 5;
     object-fit: cover;
     object-position: 50% 15%;
-    transition: transform 0.9s var(--ease);
+    transition: filter 0.4s var(--ease);
   }
 
   .person:hover :global(.person__img) {
-    transform: scale(1.03);
+    filter: brightness(1.05);
   }
 
   .person__body {

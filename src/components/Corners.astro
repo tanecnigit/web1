@@ -1,0 +1,13 @@
+---
+// Malé čtverečky v rozích rámečku nebo v průsečících linek (styl z předlohy Monitor).
+// Rodič musí mít position: relative.
+type Corner = 'tl' | 'tr' | 'bl' | 'br';
+
+interface Props {
+  only?: Corner[];
+}
+
+const { only = ['tl', 'tr', 'bl', 'br'] } = Astro.props;
+---
+
+{only.map((c) => <span class={`corner corner--${c}`} aria-hidden="true" />)}

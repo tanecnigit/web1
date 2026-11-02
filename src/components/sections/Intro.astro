@@ -1,6 +1,7 @@
 ---
 import { Picture } from 'astro:assets';
 import Button from '../Button.astro';
+import Corners from '../Corners.astro';
 import { intro, facts, course, cta } from '../../data/content.js';
 ---
 
@@ -25,10 +26,7 @@ import { intro, facts, course, cta } from '../../data/content.js';
       </div>
 
       <figure class="intro__media" data-reveal style="--reveal-delay: 0.1s">
-        <span class="intro__node intro__node--tl" aria-hidden="true"></span>
-        <span class="intro__node intro__node--tr" aria-hidden="true"></span>
-        <span class="intro__node intro__node--bl" aria-hidden="true"></span>
-        <span class="intro__node intro__node--br" aria-hidden="true"></span>
+        <Corners />
         <Picture
           src={intro.image.src}
           alt={intro.image.alt}
@@ -41,16 +39,20 @@ import { intro, facts, course, cta } from '../../data/content.js';
       </figure>
     </div>
 
-    <ul class="facts" aria-label="Kurz v číslech">
-      {
-        facts.map((fact, i) => (
-          <li class="facts__item" data-reveal style={`--reveal-delay: ${i * 0.08}s`}>
-            <span class="facts__value">{fact.value}</span>
-            <span class="facts__label">{fact.label}</span>
-          </li>
-        ))
-      }
-    </ul>
+    <div class="facts-wrap" data-reveal>
+      <Corners only={['tr', 'bl']} />
+      <ul class="facts cells" aria-label="Kurz v číslech">
+        {
+          facts.map((fact) => (
+            <li class="facts__item cell">
+              <Corners only={['tl', 'br']} />
+              <span class="facts__value">{fact.value}</span>
+              <span class="facts__label">{fact.label}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
   </div>
 </section>
 
@@ -110,52 +112,26 @@ import { intro, facts, course, cta } from '../../data/content.js';
     aspect-ratio: 4 / 3;
     object-fit: cover;
     object-position: 50% 40%;
-    -webkit-mask-image: linear-gradient(to bottom, #000 35%, rgba(0, 0, 0, 0.45) 68%, rgba(0, 0, 0, 0) 97%);
-    mask-image: linear-gradient(to bottom, #000 35%, rgba(0, 0, 0, 0.45) 68%, rgba(0, 0, 0, 0) 97%);
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 45%, rgba(0, 0, 0, 0.85) 58%, rgba(0, 0, 0, 0.55) 72%, rgba(0, 0, 0, 0.22) 86%, rgba(0, 0, 0, 0.06) 100%);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 45%, rgba(0, 0, 0, 0.85) 58%, rgba(0, 0, 0, 0.55) 72%, rgba(0, 0, 0, 0.22) 86%, rgba(0, 0, 0, 0.06) 100%);
   }
 
-  .intro__node {
-    position: absolute;
-    z-index: 1;
-    width: 9px;
-    height: 9px;
-    border: 1px solid var(--line-strong);
-    background: var(--bg);
-  }
 
-  .intro__node--tl {
-    top: -5px;
-    left: -5px;
-  }
-
-  .intro__node--tr {
-    top: -5px;
-    right: -5px;
-  }
-
-  .intro__node--bl {
-    bottom: -5px;
-    left: -5px;
-  }
-
-  .intro__node--br {
-    bottom: -5px;
-    right: -5px;
+  .facts-wrap {
+    position: relative;
+    margin-top: clamp(3.5rem, 7vw, 6rem);
   }
 
   .facts {
-    display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
-    margin-top: clamp(3.5rem, 7vw, 6rem);
-    padding-top: 2rem;
-    border-top: 1px solid var(--line);
     list-style: none;
   }
 
   .facts__item {
     display: grid;
-    gap: 0.35rem;
+    align-content: start;
+    gap: 0.6rem;
+    padding: clamp(1.5rem, 3vw, 2.25rem) clamp(1.25rem, 2.5vw, 1.75rem);
   }
 
   .facts__value {
@@ -177,7 +153,6 @@ import { intro, facts, course, cta } from '../../data/content.js';
 
     .facts {
       grid-template-columns: 1fr 1fr;
-      gap: 2rem 1rem;
     }
   }
 </style>

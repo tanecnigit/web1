@@ -1,5 +1,6 @@
 ---
 import SectionHeader from '../SectionHeader.astro';
+import Corners from '../Corners.astro';
 import { lessonPlan, course } from '../../data/content.js';
 
 // Šířka fáze odpovídá počtu lekcí, slavnostní lekce dostanou víc místa pro text
@@ -28,6 +29,7 @@ const columns = phases.map((p) => (p.highlight ? '2.2fr' : `${p.lessons.length}f
               ))}
             </div>
             <div class="phase__body">
+              <Corners />
               <p class="phase__range">
                 {phase.range}
                 {phase.highlight && <span class="phase__badge">Slavnostní</span>}
@@ -112,15 +114,15 @@ const columns = phases.map((p) => (p.highlight ? '2.2fr' : `${p.lessons.length}f
     align-content: start;
     gap: 0.45rem;
     height: 100%;
-    padding: 1.25rem 1.25rem 1.5rem;
+    position: relative;
+    padding: 1.4rem 1.35rem 1.6rem;
     border: 1px solid var(--line);
-    border-radius: var(--radius);
-    background: var(--surface);
+    background: transparent;
   }
 
+  /* Slavnostní lekce: akcentová linka nahoře, jinak stejné jako ostatní */
   .phase--special .phase__body {
-    border-color: rgba(var(--accent-rgb), 0.45);
-    background: var(--surface);
+    border-top-color: var(--accent);
   }
 
   .phase__range {

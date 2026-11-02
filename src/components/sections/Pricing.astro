@@ -1,6 +1,7 @@
 ---
 import SectionHeader from '../SectionHeader.astro';
 import Button from '../Button.astro';
+import Corners from '../Corners.astro';
 import { course, venue, cta } from '../../data/content.js';
 
 const details = [
@@ -31,7 +32,7 @@ const details = [
       </dl>
 
       <div class="price card" data-reveal style="--reveal-delay: 0.1s">
-        <span class="glyph" aria-hidden="true"></span>
+        <Corners />
         <p class="label">Cena kurzu</p>
         <p class="price__value">{course.price}</p>
         <p class="price__note">{course.priceNote}</p>

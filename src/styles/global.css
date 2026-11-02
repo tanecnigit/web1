@@ -33,9 +33,10 @@
   /* Systémové neproporcionální písmo – drobné popisky, bez stahování dalšího fontu */
   --font-mono: ui-monospace, 'SFMono-Regular', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
 
+  /* Ostré rohy – plochy jsou vymezené linkami jako v předloze; zaoblení jen u polí a tlačítek */
   --radius-sm: 8px;
-  --radius: 10px;
-  --radius-lg: 18px;
+  --radius: 0;
+  --radius-lg: 0;
 
   --container: 1240px;
   --gutter: clamp(0.75rem, 3vw, 2.5rem);
@@ -292,7 +293,52 @@ html.lenis {
   background: var(--surface-2);
 }
 
-/* Drobný oranžový roh – akcent */
+/* Čtverečky v rozích rámečků a průsečících linek (komponenta Corners.astro) */
+.corner {
+  position: absolute;
+  z-index: 1;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--line-strong);
+  background: var(--bg);
+  pointer-events: none;
+}
+
+.corner--tl {
+  top: -4px;
+  left: -4px;
+}
+
+.corner--tr {
+  top: -4px;
+  right: -4px;
+}
+
+.corner--bl {
+  bottom: -4px;
+  left: -4px;
+}
+
+.corner--br {
+  bottom: -4px;
+  right: -4px;
+}
+
+/* Mřížka buněk sdílejících linky: mřížka má horní a levou linku, každá buňka pravou a spodní */
+.cells {
+  position: relative;
+  display: grid;
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+
+.cells > .cell {
+  position: relative;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+/* Drobný roh – akcent */
 .glyph {
   position: absolute;
   top: 18px;
