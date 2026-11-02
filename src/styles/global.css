@@ -29,7 +29,13 @@
   --violet: #7b52d8;
   --indigo: #3a4cb0;
 
-  /* Jediná akcentová barva webu – růžová z gradientu v úvodu */
+  /* Čtyři odstíny z gradientu v úvodu – pro rozlišení položek (ikony, čísla, odrážky) */
+  --tone-1: #ec8bb7; /* růžová */
+  --tone-2: #f2b77a; /* broskvová */
+  --tone-3: #ab8eea; /* fialová */
+  --tone-4: #7db8ea; /* nebesky modrá */
+
+  /* Hlavní akcentová barva webu – růžová z gradientu v úvodu */
   --accent: #ec8bb7;
   --accent-rgb: 236, 139, 183;
   --gradient: linear-gradient(100deg, var(--pink) 0%, var(--peach) 32%, #a77be6 64%, var(--sky) 100%);

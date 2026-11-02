@@ -16,7 +16,7 @@ const blocks = [
     <div class="terms">
       {
         blocks.map((block, i) => (
-          <article class="terms__block card" data-reveal style={`--reveal-delay: ${i * 0.08}s`}>
+          <article class="terms__block card" data-reveal style={`--reveal-delay: ${i * 0.08}s; --tone: var(--tone-${i + 1})`}>
             <p class="terms__num">{block.num}</p>
             <h3 class="terms__title">{block.title}</h3>
             <ul class="terms__list">
@@ -44,7 +44,7 @@ const blocks = [
 
   .terms__num {
     margin-bottom: 1.25rem;
-    color: var(--accent);
+    color: var(--tone);
     font-family: var(--font-mono);
     font-size: 0.75rem;
     letter-spacing: 0.06em;
@@ -74,9 +74,10 @@ const blocks = [
     position: absolute;
     left: 0;
     top: 0.62em;
-    width: 5px;
-    height: 5px;
-    background: var(--accent);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--tone);
   }
 
   @media (max-width: 960px) {

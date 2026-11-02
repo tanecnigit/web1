@@ -12,8 +12,8 @@ import { curriculum, audience } from '../../data/content.js';
     <div class="grid-block" data-reveal>
       <ul class="topics">
         {
-          curriculum.items.map((item) => (
-            <li class="topic">
+          curriculum.items.map((item, i) => (
+            <li class="topic" style={`--tone: var(--tone-${(i % 4) + 1})`}>
               <span class="node node--tl" aria-hidden="true" />
               <span class="node node--br" aria-hidden="true" />
               <TopicIcon name={item.icon as any} />
@@ -67,9 +67,9 @@ import { curriculum, audience } from '../../data/content.js';
     border-right: 1px solid var(--line);
     border-bottom: 1px solid var(--line);
     transition: background-color 0.3s var(--ease);
-    /* Ikony v jednotné akcentové barvě webu */
-    --tone-a: var(--accent);
-    --tone-b: var(--accent);
+    /* Každá ikona má vlastní odstín z gradientu v úvodu */
+    --tone-a: var(--tone);
+    --tone-b: var(--tone);
   }
 
   .topic:hover {
