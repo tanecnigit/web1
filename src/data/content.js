@@ -106,21 +106,25 @@ export const curriculum = {
   items: [
     {
       icon: 'standard',
+      tone: 'pink',
       title: 'Standardní tance',
       text: 'Základy klasických párových tanců, správné držení, vedení a pohyb po parketu.',
     },
     {
       icon: 'latin',
+      tone: 'sky',
       title: 'Latinskoamerické tance',
       text: 'Rytmus, energie a radost z pohybu – základní kroky a figury latinskoamerických tanců.',
     },
     {
       icon: 'folk',
+      tone: 'violet',
       title: 'Národně-společenské tance',
       text: 'Tance, které na žádném českém plese nesmí chybět.',
     },
     {
       icon: 'etiquette',
+      tone: 'peach',
       title: 'Společenské chování',
       text: 'Základní pravidla etikety: jak se představit, vyzvat k tanci a vystupovat ve společnosti s jistotou.',
     },

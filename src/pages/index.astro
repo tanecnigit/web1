@@ -39,10 +39,23 @@ import Contact from '../components/sections/Contact.astro';
   .stack {
     position: relative;
     z-index: 1;
-    background: var(--grain), var(--bg);
+    background: var(--bg);
     border-top: 1px solid var(--line);
     border-radius: 28px 28px 0 0;
     box-shadow: 0 -40px 80px rgba(0, 0, 0, 0.55);
+  }
+
+  /* Zrno: nahoře žádné, směrem dolů postupně a jen slabě přibývá */
+  .stack::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--grain);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, transparent 25%, rgba(0, 0, 0, 0.7) 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, transparent 25%, rgba(0, 0, 0, 0.7) 100%);
+    pointer-events: none;
   }
 
   .stack::before {

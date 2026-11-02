@@ -60,8 +60,20 @@ const links = [...nav, cta, { href: '#podminky', label: 'Storno podmínky a GDPR
     position: relative;
     padding-block: 4rem 2rem;
     border-top: 1px solid var(--line);
-    background: var(--grain), var(--bg);
+    isolation: isolate;
+    background: var(--bg);
     font-size: 0.925rem;
+  }
+
+  /* Slabé zrno navazující na konec stránky */
+  .footer::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--grain);
+    opacity: 0.7;
+    pointer-events: none;
   }
 
   .footer__grid {
@@ -118,7 +130,18 @@ const links = [...nav, cta, { href: '#podminky', label: 'Storno podmínky a GDPR
   }
 
   @media (max-width: 900px) {
-    .footer__grid {
+    /* Slabé zrno navazující na konec stránky */
+  .footer::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--grain);
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  .footer__grid {
       grid-template-columns: 1fr 1fr;
     }
 
@@ -128,7 +151,18 @@ const links = [...nav, cta, { href: '#podminky', label: 'Storno podmínky a GDPR
   }
 
   @media (max-width: 480px) {
-    .footer__grid {
+    /* Slabé zrno navazující na konec stránky */
+  .footer::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--grain);
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  .footer__grid {
       grid-template-columns: 1fr;
     }
   }
