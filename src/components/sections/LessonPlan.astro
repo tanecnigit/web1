@@ -67,10 +67,11 @@ const columns = phases.map((p) => (p.highlight ? '2.2fr' : `${p.lessons.length}f
     background: var(--line-strong);
   }
 
+  /* Tečky nahoře, rámeček s textem pod nimi – všechny rámečky stejně vysoké */
   .phase {
     position: relative;
     display: grid;
-    align-content: start;
+    grid-template-rows: auto 1fr;
     gap: 1.25rem;
   }
 
@@ -100,7 +101,7 @@ const columns = phases.map((p) => (p.highlight ? '2.2fr' : `${p.lessons.length}f
   .phase--special .phase__dot {
     width: 44px;
     height: 44px;
-    margin-top: -2px;
+    margin-block: -2px;
     border-color: transparent;
     background: var(--accent);
     color: #020202;
@@ -119,8 +120,9 @@ const columns = phases.map((p) => (p.highlight ? '2.2fr' : `${p.lessons.length}f
   }
 
   /* Slavnostní lekce: akcentová linka nahoře, jinak stejné jako ostatní */
+  /* Slavnostní lekce: celý rámeček v akcentové barvě */
   .phase--special .phase__body {
-    border-top-color: var(--accent);
+    border-color: rgba(var(--accent-rgb), 0.55);
   }
 
   .phase__range {
@@ -212,6 +214,7 @@ const columns = phases.map((p) => (p.highlight ? '2.2fr' : `${p.lessons.length}f
 
     .phase {
       grid-template-columns: 40px 1fr;
+      grid-template-rows: auto;
       gap: 1rem;
     }
 
