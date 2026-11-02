@@ -80,15 +80,13 @@ const { title, group, open = false } = Astro.props;
   }
 
   .accordion__summary:hover .accordion__icon {
-    border-color: rgba(var(--accent-rgb), 0.6);
+    border-color: var(--line-strong);
   }
 
   .accordion.is-open .accordion__icon,
   :global(html:not(.js)) .accordion[open] .accordion__icon {
     transform: rotate(135deg);
     color: var(--accent);
-    border-color: rgba(var(--accent-rgb), 0.5);
-    background: rgba(var(--accent-rgb), 0.08);
   }
 
   .accordion__body {

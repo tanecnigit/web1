@@ -13,7 +13,7 @@ import { curriculum, audience } from '../../data/content.js';
       <ul class="topics">
         {
           curriculum.items.map((item) => (
-            <li class={`topic topic--${item.tone}`}>
+            <li class="topic">
               <span class="node node--tl" aria-hidden="true" />
               <span class="node node--br" aria-hidden="true" />
               <TopicIcon name={item.icon as any} />
@@ -66,70 +66,19 @@ import { curriculum, audience } from '../../data/content.js';
     padding: 1.75rem 1.5rem 1.9rem;
     border-right: 1px solid var(--line);
     border-bottom: 1px solid var(--line);
-    isolation: isolate;
     transition: background-color 0.3s var(--ease);
-  }
-
-  /* Barevné odstíny z gradientu v úvodu – ikona, záře v rohu a linka nahoře */
-  .topic--pink {
-    --tone: 240, 127, 180;
-    --tone-a: #f7b3d2;
-    --tone-b: #e2609e;
-  }
-
-  .topic--sky {
-    --tone: 110, 178, 236;
-    --tone-a: #a9d6f8;
-    --tone-b: #4f8fe0;
-  }
-
-  .topic--violet {
-    --tone: 168, 132, 238;
-    --tone-a: #cdb8fb;
-    --tone-b: #8a5fe0;
-  }
-
-  .topic--peach {
-    --tone: 244, 186, 112;
-    --tone-a: #fcd9a6;
-    --tone-b: #ef9a5c;
-  }
-
-  /* Jemná barevná záře z levého horního rohu buňky */
-  .topic::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: radial-gradient(120% 80% at 0% 0%, rgba(var(--tone), 0.14), transparent 60%);
-    opacity: 0.8;
-    transition: opacity 0.4s var(--ease);
-  }
-
-  /* Barevná linka po horní hraně buňky */
-  .topic::after {
-    content: '';
-    position: absolute;
-    top: -1px;
-    left: 0;
-    width: 55%;
-    height: 1px;
-    background: linear-gradient(90deg, rgba(var(--tone), 0.9), transparent);
-    pointer-events: none;
-  }
-
-  .topic:hover::before {
-    opacity: 1;
+    /* Ikony v jednotné akcentové barvě webu */
+    --tone-a: var(--accent);
+    --tone-b: var(--accent);
   }
 
   .topic:hover {
-    background: rgba(var(--tone), 0.03);
+    background: rgba(255, 255, 255, 0.025);
   }
 
   .topic :global(.topic-icon) {
-    width: 40px;
-    height: 40px;
-    filter: drop-shadow(0 0 14px rgba(var(--tone), 0.35));
+    width: 36px;
+    height: 36px;
     transition: transform 0.5s var(--ease);
   }
 

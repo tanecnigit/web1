@@ -64,7 +64,7 @@ const columns = phases.map((p) => (p.highlight ? '2.2fr' : `${p.lessons.length}f
     left: 20px;
     right: 20px;
     height: 1px;
-    background: linear-gradient(90deg, var(--line-strong), rgba(var(--accent-rgb), 0.6) 46%, var(--line-strong) 54%, rgba(var(--accent-rgb), 0.6));
+    background: var(--line-strong);
   }
 
   .phase {
@@ -102,10 +102,9 @@ const columns = phases.map((p) => (p.highlight ? '2.2fr' : `${p.lessons.length}f
     height: 44px;
     margin-top: -2px;
     border-color: transparent;
-    background: var(--gradient);
+    background: var(--accent);
     color: #020202;
     font-weight: 600;
-    box-shadow: 0 0 0 6px rgba(var(--accent-rgb), 0.14);
   }
 
   .phase__body {
@@ -121,7 +120,7 @@ const columns = phases.map((p) => (p.highlight ? '2.2fr' : `${p.lessons.length}f
 
   .phase--special .phase__body {
     border-color: rgba(var(--accent-rgb), 0.45);
-    background: linear-gradient(180deg, rgba(var(--accent-rgb), 0.1), var(--surface) 70%);
+    background: var(--surface);
   }
 
   .phase__range {
@@ -144,7 +143,7 @@ const columns = phases.map((p) => (p.highlight ? '2.2fr' : `${p.lessons.length}f
     padding: 0.15rem 0.5rem;
     border-radius: 999px;
     background: rgba(var(--accent-rgb), 0.16);
-    color: #ffd3e6;
+    color: var(--accent);
     font-size: 0.62rem;
     letter-spacing: 0.1em;
   }
@@ -190,7 +189,7 @@ const columns = phases.map((p) => (p.highlight ? '2.2fr' : `${p.lessons.length}f
 
   .legend__dot--special {
     border-color: transparent;
-    background: var(--gradient);
+    background: var(--accent);
   }
 
   /* Tablet a mobil: svislá časová osa */
@@ -208,7 +207,7 @@ const columns = phases.map((p) => (p.highlight ? '2.2fr' : `${p.lessons.length}f
       right: auto;
       width: 1px;
       height: auto;
-      background: linear-gradient(180deg, var(--line-strong), rgba(var(--accent-rgb), 0.6));
+      background: var(--line-strong);
     }
 
     .phase {

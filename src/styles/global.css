@@ -29,8 +29,9 @@
   --violet: #7b52d8;
   --indigo: #3a4cb0;
 
-  --accent: #2f80f6;
-  --accent-rgb: 47, 128, 246;
+  /* Jediná akcentová barva webu – růžová z gradientu v úvodu */
+  --accent: #ec8bb7;
+  --accent-rgb: 236, 139, 183;
   --gradient: linear-gradient(100deg, var(--pink) 0%, var(--peach) 32%, #a77be6 64%, var(--sky) 100%);
 
   --font: 'Geist Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -286,7 +287,6 @@ html.lenis {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
   transition:
     border-color 0.25s var(--ease),
     background-color 0.25s var(--ease);
