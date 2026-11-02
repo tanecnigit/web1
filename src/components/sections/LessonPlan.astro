@@ -1,6 +1,5 @@
 ---
 import SectionHeader from '../SectionHeader.astro';
-import Corners from '../Corners.astro';
 import { lessonPlan, course } from '../../data/content.js';
 
 // Šířka fáze odpovídá počtu lekcí, slavnostní lekce dostanou víc místa pro text
@@ -29,7 +28,6 @@ const columns = phases.map((p) => (p.highlight ? '2.2fr' : `${p.lessons.length}f
               ))}
             </div>
             <div class="phase__body">
-              <Corners />
               <p class="phase__range">
                 {phase.range}
                 {phase.highlight && <span class="phase__badge">Slavnostní</span>}
