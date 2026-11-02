@@ -192,13 +192,16 @@ import { hero, course } from '../../data/content.js';
     let covered = false;
     let ticking = false;
     // Výška hero se čte jen při změně velikosti, ne při každém posunu (žádný vynucený přepočet rozvržení)
-    let heroHeight = window.innerHeight;
+    // (výchozí hodnotu dodá ResizeObserver hned po prvním vykreslení)
+    let heroHeight = 0;
     new ResizeObserver(([entry]) => {
-      heroHeight = entry.contentRect.height || window.innerHeight;
+      heroHeight = entry.contentRect.height;
+      update();
     }).observe(hero);
 
     const update = () => {
       ticking = false;
+      if (!heroHeight) return;
       const p = Math.min(Math.max(window.scrollY / heroHeight, 0), 1);
       inner.style.transform = `translateY(${p * -6}vh) scale(${1 - p * 0.08})`;
       inner.style.opacity = String(1 - p * 0.85);
@@ -210,7 +213,6 @@ import { hero, course } from '../../data/content.js';
       }
     };
 
-    requestAnimationFrame(update);
     window.addEventListener(
       'scroll',
       () => {

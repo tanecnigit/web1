@@ -4,15 +4,18 @@ import Lenis from 'lenis';
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const headerOffset = () => -(document.querySelector<HTMLElement>('[data-header]')?.offsetHeight ?? 72) - 12;
 
-const lenis = reduced ? null : new Lenis({ lerp: 0.09, wheelMultiplier: 0.9 });
-
-if (lenis) {
+// Lenis se zapne až po načtení stránky, aby jeho měření rozvržení nebrzdilo první vykreslení
+let lenis: Lenis | null = null;
+const startLenis = () => {
+  if (reduced) return;
+  lenis = new Lenis({ lerp: 0.09, wheelMultiplier: 0.9 });
   const raf = (time: number) => {
-    lenis.raf(time);
+    lenis!.raf(time);
     requestAnimationFrame(raf);
   };
   requestAnimationFrame(raf);
-}
+};
+document.readyState === 'complete' ? startLenis() : window.addEventListener('load', startLenis, { once: true });
 
 const scrollToHash = (hash: string) => {
   // „#top“ vede vždy úplně nahoru – hero je přišpendlený, takže skok na jeho pozici by nefungoval

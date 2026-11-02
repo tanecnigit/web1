@@ -1,10 +1,8 @@
-@import '@fontsource-variable/space-grotesk';
 @import '@fontsource-variable/geist';
-@import '@fontsource-variable/geist-mono';
 
 /* ───────── Design tokeny ─────────
- * Úvod (hero) má vlastní gradient a písmo Space Grotesk.
- * Zbytek webu: černé pozadí s konstrukčními linkami, písmo Geist a drobné popisky v Geist Mono.
+ * Úvod (hero) má vlastní animovaný gradient.
+ * Zbytek webu: černé pozadí s konstrukčními linkami, písmo Geist a drobné popisky v systémovém neproporcionálním písmu.
  */
 :root {
   color-scheme: dark;
@@ -21,14 +19,6 @@
   --text-muted: #8a8a8a;
   --text-subtle: #6e6e6e;
 
-  /* Paleta gradientu */
-  --pink: #ee6ea8;
-  --peach: #f4b86a;
-  --coral: #e3709a;
-  --sky: #5aa8e6;
-  --violet: #7b52d8;
-  --indigo: #3a4cb0;
-
   /* Čtyři odstíny z gradientu v úvodu – pro rozlišení položek (ikony, čísla, odrážky) */
   --tone-1: #ec8bb7; /* růžová */
   --tone-2: #f2b77a; /* broskvová */
@@ -38,11 +28,10 @@
   /* Hlavní akcentová barva webu – růžová z gradientu v úvodu */
   --accent: #ec8bb7;
   --accent-rgb: 236, 139, 183;
-  --gradient: linear-gradient(100deg, var(--pink) 0%, var(--peach) 32%, #a77be6 64%, var(--sky) 100%);
 
   --font: 'Geist Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'Geist Mono Variable', ui-monospace, 'SFMono-Regular', Consolas, monospace;
-  --font-hero: 'Space Grotesk Variable', system-ui, sans-serif;
+  /* Systémové neproporcionální písmo – drobné popisky, bez stahování dalšího fontu */
+  --font-mono: ui-monospace, 'SFMono-Regular', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
 
   --radius-sm: 8px;
   --radius: 10px;
