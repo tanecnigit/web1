@@ -35,19 +35,36 @@ import Contact from '../components/sections/Contact.astro';
 </BaseLayout>
 
 <style>
-  /* Tmavá plocha s jemnou mřížkou */
+  /* Černá plocha se svislými konstrukčními linkami podél okrajů obsahu */
   .stack {
     position: relative;
     z-index: 1;
-    background-color: var(--bg);
-    background-image:
-      linear-gradient(var(--grid-line) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-    background-size: 96px 96px;
-    background-position: center top;
+    background: var(--bg);
     border-top: 1px solid var(--line);
     border-radius: 28px 28px 0 0;
     box-shadow: 0 -40px 80px rgba(0, 0, 0, 0.55);
+  }
+
+  .stack::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: var(--frame);
+    transform: translateX(-50%);
+    border-inline: 1px solid var(--line);
+    pointer-events: none;
+  }
+
+  /* První sekce navazuje přímo na zaoblený okraj – bez vlastní linky */
+  .stack > :global(.section:first-child) {
+    border-top: 0;
+  }
+
+  .stack > :global(.section:first-child)::before,
+  .stack > :global(.section:first-child)::after {
+    display: none;
   }
 
   @media (max-width: 640px) {

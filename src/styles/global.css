@@ -1,24 +1,23 @@
 @import '@fontsource-variable/space-grotesk';
 @import '@fontsource-variable/geist';
-@import '@fontsource/joan/400.css';
+@import '@fontsource-variable/geist-mono';
 
 /* ───────── Design tokeny ─────────
  * Úvod (hero) má vlastní gradient a písmo Space Grotesk.
- * Zbytek webu: tmavé plochy s jemnou mřížkou, patkové nadpisy (Joan) a text v Geist.
+ * Zbytek webu: černé pozadí s konstrukčními linkami, písmo Geist a drobné popisky v Geist Mono.
  */
 :root {
   color-scheme: dark;
 
-  --bg: #0a0a0a;
-  --surface: #121212;
-  --surface-2: #171717;
-  --line: rgba(255, 255, 255, 0.07);
-  --line-strong: rgba(255, 255, 255, 0.14);
-  --grid-line: rgba(255, 255, 255, 0.045);
+  --bg: #000000;
+  --surface: #0a0a0a;
+  --surface-2: #141414;
+  --line: rgba(255, 255, 255, 0.1);
+  --line-strong: rgba(255, 255, 255, 0.18);
 
   --text: #ffffff;
-  --text-muted: #a3a3a3;
-  --text-subtle: #7a7a7a;
+  --text-muted: #8a8a8a;
+  --text-subtle: #6e6e6e;
 
   /* Paleta gradientu */
   --pink: #ee6ea8;
@@ -28,16 +27,16 @@
   --violet: #7b52d8;
   --indigo: #3a4cb0;
 
-  --accent: #ff6745;
-  --accent-rgb: 255, 103, 69;
+  --accent: #2f80f6;
+  --accent-rgb: 47, 128, 246;
   --gradient: linear-gradient(100deg, var(--pink) 0%, var(--peach) 32%, #a77be6 64%, var(--sky) 100%);
 
   --font: 'Geist Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-serif: 'Joan', 'Iowan Old Style', Georgia, serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, 'SFMono-Regular', Consolas, monospace;
   --font-hero: 'Space Grotesk Variable', system-ui, sans-serif;
 
   --radius-sm: 8px;
-  --radius: 14px;
+  --radius: 10px;
   --radius-lg: 18px;
 
   --container: 1240px;
@@ -184,16 +183,45 @@ html.lenis {
   padding-inline: var(--gutter);
 }
 
+/* Šířka obsahu – podle ní vedou svislé konstrukční linky */
+:root {
+  --frame: min(calc(100% - 2 * var(--gutter)), var(--container));
+}
+
+/* Každá sekce začíná vodorovnou linkou se čtverečky v místě, kde ji kříží svislé linky */
 .section {
+  position: relative;
   padding-block: var(--section-y);
+  border-top: 1px solid var(--line);
+}
+
+.section::before,
+.section::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--line-strong);
+  background: var(--bg);
+  pointer-events: none;
+}
+
+.section::before {
+  left: calc((100% - var(--frame)) / 2 - 4px);
+}
+
+.section::after {
+  right: calc((100% - var(--frame)) / 2 - 4px);
 }
 
 /* ───────── Typografie ───────── */
 .label {
   color: var(--text-subtle);
+  font-family: var(--font-mono);
   font-size: 0.72rem;
-  font-weight: 500;
-  letter-spacing: 0.12em;
+  font-weight: 400;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
@@ -203,22 +231,14 @@ html.lenis {
   align-items: center;
   gap: 0.5rem;
   width: fit-content;
-  padding: 0.38rem 0.75rem 0.38rem 0.85rem;
+  padding: 0.45rem 0.85rem;
   border: 1px solid var(--line-strong);
   border-radius: 999px;
-  background: var(--surface-2);
+  background: rgba(255, 255, 255, 0.03);
   color: var(--text);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 500;
   line-height: 1;
-}
-
-.badge::after {
-  content: '';
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: currentColor;
 }
 
 .display {
@@ -226,11 +246,10 @@ html.lenis {
 }
 
 .section-title {
-  font-family: var(--font-serif);
-  font-size: clamp(2.25rem, 4.6vw, 3.4rem);
-  font-weight: 400;
-  line-height: 1.06;
-  letter-spacing: -0.01em;
+  font-size: clamp(2rem, 4.2vw, 3rem);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
 }
 
 .section-lead {
@@ -250,7 +269,7 @@ html.lenis {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
   transition:
     border-color 0.25s var(--ease),
     background-color 0.25s var(--ease);
