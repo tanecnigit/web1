@@ -13,10 +13,13 @@ const blocks = [
   <div class="container">
     <SectionHeader id="podminky-title" badge="Podmínky" title="Storno podmínky a souhlasy" lead={terms.agreement} />
 
-    <div class="terms">
+    <!-- Buňky oddělené linkami se čtverečky v průsečících – stejně jako Obsah kurzu -->
+    <div class="terms" data-reveal>
       {
         blocks.map((block, i) => (
-          <article class="terms__block card" data-reveal style={`--reveal-delay: ${i * 0.08}s; --tone: var(--tone-${i + 1})`}>
+          <article class="terms__block" style={`--tone: var(--tone-${i + 1})`}>
+            <span class="node node--tl" aria-hidden="true" />
+            <span class="node node--br" aria-hidden="true" />
             <p class="terms__num">{block.num}</p>
             <h3 class="terms__title">{block.title}</h3>
             <ul class="terms__list">
@@ -32,18 +35,29 @@ const blocks = [
 </section>
 
 <style>
+  /* Mřížka má horní a levou linku, každá buňka pravou a spodní */
   .terms {
+    position: relative;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
   }
 
   .terms__block {
-    padding: clamp(1.5rem, 3vw, 2rem);
+    position: relative;
+    padding: clamp(1.75rem, 3vw, 2.25rem) clamp(1.5rem, 2.5vw, 2rem) clamp(2rem, 3.5vw, 2.75rem);
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    transition: background-color 0.3s var(--ease);
+  }
+
+  .terms__block:hover {
+    background: rgba(255, 255, 255, 0.025);
   }
 
   .terms__num {
-    margin-bottom: 1.25rem;
+    margin-bottom: 2.5rem;
     color: var(--tone);
     font-family: var(--font-mono);
     font-size: 0.75rem;
@@ -51,9 +65,10 @@ const blocks = [
   }
 
   .terms__title {
-    font-size: 1.15rem;
-    font-weight: 500;
     margin-bottom: 1.25rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
   }
 
   .terms__list {
@@ -67,6 +82,7 @@ const blocks = [
     padding-left: 1.25rem;
     color: var(--text-muted);
     font-size: 0.95rem;
+    line-height: 1.6;
   }
 
   .terms__list li::before {
@@ -80,9 +96,51 @@ const blocks = [
     background: var(--tone);
   }
 
+  /* Čtverečky v průsečících linek */
+  .node,
+  .terms::before,
+  .terms::after {
+    position: absolute;
+    z-index: 1;
+    width: 7px;
+    height: 7px;
+    border: 1px solid var(--line-strong);
+    background: var(--bg);
+    pointer-events: none;
+  }
+
+  .node--tl {
+    top: -4px;
+    left: -4px;
+  }
+
+  .node--br {
+    right: -4px;
+    bottom: -4px;
+  }
+
+  .terms::before,
+  .terms::after {
+    content: '';
+  }
+
+  .terms::before {
+    top: -4px;
+    right: -4px;
+  }
+
+  .terms::after {
+    bottom: -4px;
+    left: -4px;
+  }
+
   @media (max-width: 960px) {
     .terms {
       grid-template-columns: 1fr;
+    }
+
+    .terms__num {
+      margin-bottom: 1.25rem;
     }
   }
 </style>
