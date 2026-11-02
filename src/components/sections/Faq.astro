@@ -3,7 +3,7 @@ import Accordion from '../Accordion.astro';
 import { faq } from '../../data/content.js';
 ---
 
-<section class="section" id="otazky" aria-labelledby="otazky-title">
+<section class="section faq-section" id="otazky" aria-labelledby="otazky-title">
   <div class="container faq">
     <header class="faq__head" data-reveal>
       <p class="badge">Časté dotazy</p>
@@ -13,6 +13,7 @@ import { faq } from '../../data/content.js';
       </p>
     </header>
 
+    <!-- Seznam otázek vede od horní k dolní lince sekce a až ke konstrukční lince vpravo (jako v předloze) -->
     <div class="faq__list" data-reveal style="--reveal-delay: 0.1s">
       {
         faq.items.map((item, i) => (
@@ -26,18 +27,25 @@ import { faq } from '../../data/content.js';
 </section>
 
 <style>
+  .faq-section {
+    padding-block: 0;
+  }
+
   .faq {
     display: grid;
-    grid-template-columns: 1fr 1.7fr;
-    gap: clamp(2rem, 6vw, 5rem);
-    align-items: start;
+    grid-template-columns: 1fr 1.9fr;
+    align-items: stretch;
   }
 
   .faq__head {
+    align-self: start;
     position: sticky;
     top: calc(var(--header-h) + 2rem);
     display: grid;
-    gap: 1rem;
+    gap: 1.1rem;
+    justify-items: start;
+    padding-block: var(--section-y);
+    padding-right: 2rem;
   }
 
   .faq__head a {
@@ -45,11 +53,14 @@ import { faq } from '../../data/content.js';
     text-underline-offset: 3px;
   }
 
-  /* Mezery mezi otázkami určuje seznam (gap), ne okraje jednotlivých položek */
   .faq__list {
-    display: grid;
-    align-content: start;
-    gap: 0.75rem;
+    margin-right: calc(-1 * var(--frame-pad));
+    border-left: 1px solid var(--line);
+  }
+
+  /* Poslední řádek navazuje přímo na linku další sekce */
+  .faq__list :global(.accordion:last-child) {
+    border-bottom: 0;
   }
 
   @media (max-width: 900px) {
@@ -59,6 +70,13 @@ import { faq } from '../../data/content.js';
 
     .faq__head {
       position: static;
+      padding-block: var(--section-y) 2.5rem;
+    }
+
+    .faq__list {
+      margin-left: calc(-1 * var(--frame-pad));
+      border-left: 0;
+      border-top: 1px solid var(--line);
     }
   }
 </style>

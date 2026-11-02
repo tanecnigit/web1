@@ -14,7 +14,10 @@ const { title, group, open = false } = Astro.props;
 <details class="accordion" data-accordion data-group={group} open={open}>
   <summary class="accordion__summary">
     <h3 class="accordion__title">{title}</h3>
-    <span class="accordion__icon"><Icon name="plus" size={18} /></span>
+    <span class="accordion__icon" aria-hidden="true">
+      <Icon name="chevronDown" size={18} class="accordion__icon-closed" />
+      <Icon name="arrowUp" size={18} class="accordion__icon-open" />
+    </span>
   </summary>
   <div class="accordion__body" data-accordion-body>
     <div class="accordion__inner"><slot /></div>
@@ -22,30 +25,30 @@ const { title, group, open = false } = Astro.props;
 </details>
 
 <style>
-  /* Každá otázka je samostatný tmavý řádek */
+  /* Otázky jako řádky oddělené linkami – podle předlohy */
   .accordion {
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    background: var(--surface);
-    transition:
-      border-color 0.3s var(--ease),
-      background-color 0.3s var(--ease);
+    border-bottom: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.015);
+    transition: background-color 0.3s var(--ease);
   }
 
   .accordion:hover,
   .accordion.is-open {
-    border-color: var(--line-strong);
-    background: var(--surface-2);
+    background: rgba(255, 255, 255, 0.03);
   }
 
   .accordion__summary {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1.5rem;
-    padding: 1.15rem 1.25rem;
+    gap: 2rem;
+    padding: clamp(1.6rem, 3vw, 2.4rem) clamp(1.25rem, 3vw, 2.4rem);
     cursor: pointer;
     list-style: none;
+  }
+
+  .accordion.is-open .accordion__summary {
+    padding-bottom: 1rem;
   }
 
   .accordion__summary::-webkit-details-marker {
@@ -53,40 +56,49 @@ const { title, group, open = false } = Astro.props;
   }
 
   .accordion__title {
-    font-size: clamp(0.98rem, 1.4vw, 1.05rem);
+    font-size: clamp(1.05rem, 1.6vw, 1.25rem);
     font-weight: 500;
-    line-height: 1.4;
-    transition: color 0.3s var(--ease);
-  }
-
-  .accordion__summary:hover .accordion__title {
-    color: #fff;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
   }
 
   .accordion__icon {
+    position: relative;
     flex: none;
     display: grid;
-    place-items: center;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    border: 1px solid transparent;
-    color: var(--text);
+    width: 20px;
+    height: 20px;
+    color: var(--text-muted);
+    transition: color 0.3s var(--ease);
+  }
+
+  .accordion__icon :global(.icon) {
+    grid-area: 1 / 1;
     transition:
-      transform 0.5s var(--ease),
-      color 0.3s var(--ease),
-      border-color 0.3s var(--ease),
-      background-color 0.3s var(--ease);
+      opacity 0.3s var(--ease),
+      transform 0.4s var(--ease);
   }
 
-  .accordion__summary:hover .accordion__icon {
-    border-color: var(--line-strong);
+  .accordion__icon :global(.accordion__icon-open) {
+    opacity: 0;
+    transform: translateY(4px);
   }
 
-  .accordion.is-open .accordion__icon,
-  :global(html:not(.js)) .accordion[open] .accordion__icon {
-    transform: rotate(135deg);
-    color: var(--accent);
+  .accordion__summary:hover .accordion__icon,
+  .accordion.is-open .accordion__icon {
+    color: var(--text);
+  }
+
+  .accordion.is-open .accordion__icon :global(.accordion__icon-closed),
+  :global(html:not(.js)) .accordion[open] .accordion__icon :global(.accordion__icon-closed) {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  .accordion.is-open .accordion__icon :global(.accordion__icon-open),
+  :global(html:not(.js)) .accordion[open] .accordion__icon :global(.accordion__icon-open) {
+    opacity: 1;
+    transform: none;
   }
 
   .accordion__body {
@@ -94,9 +106,11 @@ const { title, group, open = false } = Astro.props;
   }
 
   .accordion__inner {
-    padding: 0 3.5rem 1.25rem 1.25rem;
+    max-width: 62ch;
+    padding: 0 clamp(1.25rem, 3vw, 2.4rem) clamp(1.6rem, 3vw, 2.4rem);
     color: var(--text-muted);
-    font-weight: 300;
+    font-size: clamp(0.95rem, 1.3vw, 1.05rem);
+    line-height: 1.65;
     transition:
       opacity 0.45s var(--ease),
       transform 0.45s var(--ease);
@@ -105,12 +119,6 @@ const { title, group, open = false } = Astro.props;
   :global(.js) .accordion:not(.is-open) .accordion__inner {
     opacity: 0;
     transform: translateY(-8px);
-  }
-
-  @media (max-width: 560px) {
-    .accordion__inner {
-      padding-right: 1.25rem;
-    }
   }
 </style>
 
