@@ -8,126 +8,171 @@ import { curriculum, audience } from '../../data/content.js';
   <div class="container">
     <SectionHeader id="obsah-kurzu-title" badge="Obsah kurzu" title={curriculum.title} lead={curriculum.lead} />
 
-    <ul class="topics">
-      {
-        curriculum.items.map((item, i) => (
-          <li class={`topic card topic--${item.tone}`} data-reveal style={`--reveal-delay: ${i * 0.08}s`}>
-            <span class="glyph" aria-hidden="true" />
-            <span class="topic__badge">
+    <!-- Řada buněk oddělených linkami, se čtverečky v průsečících (jako v předloze Monitor) -->
+    <div class="grid-block" data-reveal>
+      <ul class="topics">
+        {
+          curriculum.items.map((item) => (
+            <li class="topic">
+              <span class="node node--tl" aria-hidden="true" />
+              <span class="node node--br" aria-hidden="true" />
               <TopicIcon name={item.icon as any} />
-            </span>
-            <h3 class="topic__title">{item.title}</h3>
-            <p class="topic__text">{item.text}</p>
-          </li>
-        ))
-      }
-    </ul>
-
-    <aside class="audience card" aria-labelledby="pro-koho-title" data-reveal>
-      <div>
-        <h3 class="audience__title" id="pro-koho-title">{audience.title}</h3>
-        <p class="audience__text">{audience.text}</p>
-      </div>
-      <ul class="audience__places" aria-label="Odkud k nám studenti jezdí">
-        {audience.places.map((place) => <li>{place}</li>)}
+              <div class="topic__body">
+                <h3 class="topic__title">{item.title}</h3>
+                <p class="topic__text">{item.text}</p>
+              </div>
+            </li>
+          ))
+        }
       </ul>
-    </aside>
+
+      <aside class="audience" aria-labelledby="pro-koho-title">
+        <span class="node node--bl" aria-hidden="true" />
+        <span class="node node--br" aria-hidden="true" />
+        <div>
+          <h3 class="audience__title" id="pro-koho-title">{audience.title}</h3>
+          <p class="audience__text">{audience.text}</p>
+        </div>
+        <ul class="audience__places" aria-label="Odkud k nám studenti jezdí">
+          {audience.places.map((place) => <li>{place}</li>)}
+        </ul>
+      </aside>
+    </div>
   </div>
 </section>
 
 <style>
+  .grid-block {
+    position: relative;
+  }
+
+  /* Buňky sdílí linky: mřížka má horní a levou linku, každá buňka pravou a spodní */
   .topics {
+    position: relative;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
     list-style: none;
   }
 
   .topic {
-    display: grid;
-    align-content: start;
-    gap: 0.75rem;
-    padding: 1.75rem 1.5rem 2rem;
-    min-height: 240px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 3.5rem;
+    min-height: 260px;
+    padding: 1.75rem 1.5rem 1.9rem;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    transition: background-color 0.3s var(--ease);
+    /* Bílé ikony s jemným přechodem do šedé – jako v předloze */
+    --tone-a: #ffffff;
+    --tone-b: #9d9d9d;
   }
 
-  /* Barevné rozlišení ikon – dvojice odstínů z gradientu v úvodu */
-  .topic--pink {
-    --tone: 240, 127, 180;
-    --tone-a: #f4a3c8;
-    --tone-b: #e2609e;
+  .topic:hover {
+    background: rgba(255, 255, 255, 0.025);
   }
 
-  .topic--sky {
-    --tone: 110, 178, 236;
-    --tone-a: #9fd0f6;
-    --tone-b: #4f8fe0;
-  }
-
-  .topic--violet {
-    --tone: 168, 132, 238;
-    --tone-a: #c9b3fa;
-    --tone-b: #8a5fe0;
-  }
-
-  .topic--peach {
-    --tone: 244, 186, 112;
-    --tone-a: #fbd59e;
-    --tone-b: #ef9a5c;
-  }
-
-  .topic .glyph {
-    border-color: rgb(var(--tone));
-  }
-
-  /* Ikona bez podkladu – stejně střídmá jako ostatní prvky webu */
-  .topic__badge {
-    display: block;
-    margin-bottom: auto;
-  }
-
-  .topic__badge :global(.topic-icon) {
-    width: 48px;
-    height: 48px;
+  .topic :global(.topic-icon) {
+    width: 34px;
+    height: 34px;
     transition: transform 0.5s var(--ease);
   }
 
-  .topic:hover .topic__badge :global(.topic-icon) {
+  .topic:hover :global(.topic-icon) {
     transform: translateY(-3px);
     transition-delay: 0s;
   }
 
+  .topic__body {
+    display: grid;
+    gap: 0.55rem;
+  }
+
   .topic__title {
-    margin-top: 2.5rem;
-    font-size: 1.15rem;
+    font-size: 1.05rem;
     font-weight: 500;
+    letter-spacing: -0.01em;
   }
 
   .topic__text {
-    color: var(--text-subtle);
+    color: var(--text-muted);
     font-size: 0.9rem;
-    font-weight: 300;
+    line-height: 1.55;
   }
 
+  /* Čtverečky v průsečících linek */
+  .node {
+    position: absolute;
+    z-index: 1;
+    width: 7px;
+    height: 7px;
+    border: 1px solid var(--line-strong);
+    background: var(--bg);
+    pointer-events: none;
+  }
+
+  .node--tl {
+    top: -4px;
+    left: -4px;
+  }
+
+  .node--br {
+    right: -4px;
+    bottom: -4px;
+  }
+
+  .node--bl {
+    left: -4px;
+    bottom: -4px;
+  }
+
+  /* Zbývající dva rohy mřížky */
+  .topics::before,
+  .topics::after {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    width: 7px;
+    height: 7px;
+    border: 1px solid var(--line-strong);
+    background: var(--bg);
+  }
+
+  .topics::before {
+    top: -4px;
+    right: -4px;
+  }
+
+  .topics::after {
+    bottom: -4px;
+    left: -4px;
+  }
+
+  /* Pro koho je kurz – navazující řádek pod buňkami */
   .audience {
+    position: relative;
     display: grid;
     grid-template-columns: 1.2fr 1fr;
     gap: 2rem;
     align-items: center;
-    margin-top: 1rem;
-    padding: clamp(1.5rem, 4vw, 2.5rem);
+    padding: clamp(1.5rem, 3.5vw, 2.25rem) 1.5rem;
+    border: 1px solid var(--line);
+    border-top: 0;
   }
 
   .audience__title {
     margin-bottom: 0.6rem;
-    font-size: 1.15rem;
+    font-size: 1.05rem;
     font-weight: 500;
   }
 
   .audience__text {
-    color: var(--text-subtle);
-    font-size: 0.95rem;
-    font-weight: 300;
+    color: var(--text-muted);
+    font-size: 0.9rem;
   }
 
   .audience__places {
@@ -139,13 +184,12 @@ import { curriculum, audience } from '../../data/content.js';
   }
 
   .audience__places li {
-    padding: 0.45rem 0.9rem;
+    padding: 0.45rem 0.85rem;
     border: 1px solid var(--line-strong);
     border-radius: 999px;
-    color: var(--text-muted);
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    color: var(--text);
+    font-size: 0.8rem;
+    font-weight: 500;
     white-space: nowrap;
   }
 
@@ -172,10 +216,7 @@ import { curriculum, audience } from '../../data/content.js';
 
     .topic {
       min-height: 0;
-    }
-
-    .topic__title {
-      margin-top: 1rem;
+      gap: 1.75rem;
     }
   }
 </style>

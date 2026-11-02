@@ -14,7 +14,7 @@ export const site = {
   courseName: 'Základní kurz taneční a společenské výchovy',
   since: 1996,
   url: 'https://www.tanecninovyjicin.cz', // TODO: ověřit finální doménu
-  title: 'Taneční škola Nový Jičín | Základní kurz tance a společenské výchovy',
+  title: 'Taneční škola Nový Jičín | Základní kurz taneční a společenské výchovy',
   description:
     'Taneční kurzy pro středoškoláky v Novém Jičíně od roku 1996. 12 lekcí, každé pondělí 18:00–20:00, zahájení 14. 9. 2026, cena 2 500 Kč za osobu.',
 };
@@ -106,25 +106,21 @@ export const curriculum = {
   items: [
     {
       icon: 'standard',
-      tone: 'pink',
       title: 'Standardní tance',
       text: 'Základy klasických párových tanců, správné držení, vedení a pohyb po parketu.',
     },
     {
       icon: 'latin',
-      tone: 'sky',
       title: 'Latinskoamerické tance',
       text: 'Rytmus, energie a radost z pohybu – základní kroky a figury latinskoamerických tanců.',
     },
     {
       icon: 'folk',
-      tone: 'violet',
       title: 'Národně-společenské tance',
       text: 'Tance, které na žádném českém plese nesmí chybět.',
     },
     {
       icon: 'etiquette',
-      tone: 'peach',
       title: 'Společenské chování',
       text: 'Základní pravidla etikety: jak se představit, vyzvat k tanci a vystupovat ve společnosti s jistotou.',
     },
@@ -194,7 +190,7 @@ export const terms = {
     items: [
       'Zpracováváme tyto osobní údaje: jméno, příjmení, adresu, e-mail, číslo mobilního telefonu, datum narození a školu (dále jen „kontaktní údaje“).',
       'Kontaktní údaje uchováváme a neposkytujeme je třetím stranám, a to ani za úplatu. Po skončení kurzu je na vyžádání smažeme.',
-      'Odesláním přihlášky souhlasíte s pořizováním audio, video a fotografických záznamů pro prezentaci taneční školy na webových stránkách a sociálních sítích.',
+      'Odesláním přihlášky souhlasíte s pořizováním zvukových a obrazových záznamů a fotografií pro prezentaci taneční školy na webových stránkách a sociálních sítích.',
     ],
   },
   liability: {
