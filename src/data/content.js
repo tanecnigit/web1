@@ -58,14 +58,6 @@ export const contact = {
   email: 'info@tanecninovyjicin.cz',
 };
 
-/* Odeslání přihlášky:
- * – je-li vyplněn `endpoint` (např. Formspree, Netlify Forms nebo vlastní skript), formulář se odešle POSTem jako JSON,
- * – jinak se otevře e-mailový klient s předvyplněnou zprávou na `contact.email`.
- */
-export const signupForm = {
-  endpoint: null, // TODO: doplnit URL pro příjem přihlášek
-};
-
 export const nav = [
   { href: '#kurz', label: 'Kurz' },
   { href: '#termin', label: 'Termín a cena' },

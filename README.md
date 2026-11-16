@@ -19,6 +19,14 @@ npm run build    # produkční build do složky dist/
 - **Fotky:** `src/assets/photos/` – Astro z nich při buildu generuje AVIF/WebP v několika velikostech.
 - **Originální podklady:** `_podklady/` (nepublikuje se).
 
+## Přihlášky a administrace
+
+- Formulář ukládá přihlášky do databáze **Supabase** (`src/data/supabase.js` – veřejná adresa a veřejný klíč, region EU).
+- Struktura databáze a pravidla přístupu: `supabase/schema.sql`. Návštěvník smí přihlášku jen odeslat; číst, upravovat a mazat je smí jen účet zapsaný v tabulce `admins`.
+- Administrace: `/admin` (na GitHub Pages `/web1/admin/`) – přihlášení e-mailem a heslem, seznam přihlášek, hledání, filtr a změna stavu, interní poznámky, export do Excelu (CSV) a mazání.
+- Nový administrátor: Supabase → Authentication → Users → Add user, pak spustit příkaz z konce `supabase/schema.sql`.
+- Veřejná registrace účtů je v Supabase vypnutá. Klíč `service_role` / secret do webu nikdy nepatří.
+
 ## Výkon, kompatibilita a SEO
 
 - **Animovaný gradient** se spouští až po načtení stránky a jen když je vidět. Na slabých zařízeních, v úsporném režimu dat a při vypnutých animacích je statický. Bez hardwarové akcelerace grafiky nebo bez WebGL se místo něj zobrazí CSS gradient.
@@ -31,6 +39,5 @@ npm run build    # produkční build do složky dist/
 
 - výše zápisného (zálohy) a platební údaje / číslo účtu,
 - přesná adresa sálu (Závodní klub PO Lighting Czech),
-- příjem přihlášek (`signupForm.endpoint`) – dokud není vyplněn, formulář otevře e-mail s vyplněnou přihláškou,
 - ověření finální domény,
 - ověření přiřazení fotek lektorek (Pístecká / Petřeková).
