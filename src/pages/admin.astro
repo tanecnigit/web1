@@ -1,16 +1,16 @@
 ---
 // Administrace přihlášek – přihlášení přes Supabase Auth, data chrání pravidla v databázi.
-// Stránka se neindexuje a nic z ní se nevykresluje bez přihlášení.
+// Stránka se neindexuje a bez přihlášení nic nenačte.
 import '../styles/global.css';
 import { supabase } from '../data/supabase.js';
 import { site } from '../data/content.js';
 
 const home = import.meta.env.BASE_URL;
 const statuses = [
-  { value: 'nova', label: 'Nová' },
-  { value: 'zaplaceno', label: 'Zaplaceno' },
-  { value: 'zarazen', label: 'Zařazen/a' },
-  { value: 'odhlasen', label: 'Odhlášen/a' },
+  { value: 'nova', label: 'Nová', plural: 'Nové' },
+  { value: 'zaplaceno', label: 'Zaplaceno', plural: 'Zaplaceno' },
+  { value: 'zarazen', label: 'Zařazen/a', plural: 'Zařazení' },
+  { value: 'odhlasen', label: 'Odhlášen/a', plural: 'Odhlášení' },
 ];
 ---
 
@@ -33,195 +33,264 @@ const statuses = [
       data-table={supabase.table}
       data-statuses={JSON.stringify(statuses)}
     >
-      <header class="admin__bar">
-        <a class="admin__brand" href={home}>Taneční Škola <span>Nový Jičín</span></a>
-        <p class="admin__title">Administrace přihlášek</p>
-        <button class="admin__btn admin__btn--ghost" type="button" data-logout hidden>Odhlásit se</button>
+      <header class="bar">
+        <a class="bar__brand" href={home}>Taneční Škola <span>Nový Jičín</span></a>
+        <span class="bar__tag">Administrace</span>
+        <div class="bar__user" data-user hidden>
+          <span class="bar__email" data-user-email></span>
+          <button class="btn btn--ghost btn--small" type="button" data-logout>Odhlásit se</button>
+        </div>
       </header>
 
-      <!-- Přihlášení -->
-      <section class="login" data-view="login" hidden>
-        <form class="login__card" data-login-form>
-          <h1 class="login__title">Přihlášení</h1>
-          <p class="login__lead">Přístup jen pro správce kurzu.</p>
-          <label class="login__field">
-            <span>E-mail</span>
-            <input type="email" name="email" autocomplete="username" required />
-          </label>
-          <label class="login__field">
-            <span>Heslo</span>
-            <input type="password" name="password" autocomplete="current-password" required />
-          </label>
-          <button class="admin__btn" type="submit">Přihlásit se</button>
-          <p class="login__error" role="alert" data-login-error></p>
-        </form>
-      </section>
+      <main class="main">
+        <!-- Přihlášení -->
+        <section class="login" data-view="login" hidden>
+          <form class="login__card" data-login-form>
+            <p class="tag">Přístup pro správce</p>
+            <h1 class="login__title">Přihlášení</h1>
+            <label class="field">
+              <span>E-mail</span>
+              <input type="email" name="email" autocomplete="username" required />
+            </label>
+            <label class="field">
+              <span>Heslo</span>
+              <input type="password" name="password" autocomplete="current-password" required />
+            </label>
+            <button class="btn" type="submit">Přihlásit se</button>
+            <p class="login__error" role="alert" data-login-error></p>
+          </form>
+        </section>
 
-      <!-- Načítání / chybějící oprávnění -->
-      <section class="notice" data-view="notice" hidden>
-        <p data-notice-text>Načítám…</p>
-      </section>
+        <!-- Načítání / chybějící oprávnění -->
+        <section class="notice" data-view="notice" hidden>
+          <p data-notice-text>Načítám…</p>
+        </section>
 
-      <!-- Seznam přihlášek -->
-      <section class="app" data-view="app" hidden>
-        <div class="app__toolbar">
-          <input class="app__search" type="search" placeholder="Hledat jméno, školu, e-mail…" data-search aria-label="Hledat" />
-          <select class="app__select" data-filter aria-label="Filtrovat podle stavu">
-            <option value="">Všechny stavy</option>
-            {statuses.map((s) => <option value={s.value}>{s.label}</option>)}
-          </select>
-          <button class="admin__btn admin__btn--ghost" type="button" data-refresh>Obnovit</button>
-          <button class="admin__btn" type="button" data-export>Export do Excelu</button>
-        </div>
+        <!-- Přehled přihlášek -->
+        <section class="app" data-view="app" hidden>
+          <div class="app__head">
+            <div>
+              <p class="tag">Přihlášky do kurzu</p>
+              <h1 class="app__title">Přehled přihlášek</h1>
+            </div>
+            <div class="app__actions">
+              <button class="btn btn--ghost" type="button" data-refresh>Obnovit</button>
+              <button class="btn" type="button" data-export>Export do Excelu</button>
+            </div>
+          </div>
 
-        <ul class="app__counts" data-counts></ul>
+          <!-- Souhrn – kliknutím se filtruje podle stavu -->
+          <div class="stats" data-stats></div>
 
-        <div class="app__table-wrap">
-          <table class="app__table">
-            <thead>
-              <tr>
-                <th>Přijato</th>
-                <th>Jméno</th>
-                <th>Narozen/a</th>
-                <th>Škola</th>
-                <th>Kontakt</th>
-                <th>Adresa</th>
-                <th>Poznámka</th>
-                <th>Stav</th>
-                <th>Interní poznámka</th>
-                <th><span class="sr-only">Akce</span></th>
-              </tr>
-            </thead>
-            <tbody data-rows></tbody>
-          </table>
-        </div>
-        <p class="app__empty" data-empty hidden>Žádné přihlášky neodpovídají filtru.</p>
-      </section>
+          <div class="toolbar">
+            <label class="search">
+              <span class="sr-only">Hledat</span>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+              <input type="search" placeholder="Hledat jméno, školu, e-mail, telefon…" data-search />
+            </label>
+            <select class="select" data-filter aria-label="Filtrovat podle stavu">
+              <option value="">Všechny stavy</option>
+              {statuses.map((s) => <option value={s.value}>{s.label}</option>)}
+            </select>
+          </div>
+
+          <div class="list">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Uchazeč</th>
+                  <th>Narozen/a</th>
+                  <th>Škola</th>
+                  <th>Kontakt</th>
+                  <th>Adresa</th>
+                  <th>Poznámka</th>
+                  <th>Stav</th>
+                  <th>Interní poznámka</th>
+                  <th><span class="sr-only">Akce</span></th>
+                </tr>
+              </thead>
+              <tbody data-rows></tbody>
+            </table>
+            <p class="empty" data-empty hidden></p>
+          </div>
+        </section>
+      </main>
 
       <p class="toast" role="status" aria-live="polite" data-toast></p>
     </div>
 
-    <style>
-      .admin {
-        min-height: 100vh;
-        padding: 0 clamp(1rem, 3vw, 2.5rem) 3rem;
+    <!-- is:global – řádky a souhrn vytváří skript, scoped styly by na ně nedosáhly -->
+    <style is:global>
+      /* Atribut hidden musí mít přednost před display z tříd */
+      [hidden] {
+        display: none !important;
       }
 
-      .admin__bar {
+      .admin {
+        --st-nova: var(--accent);
+        --st-zaplaceno: var(--tone-2);
+        --st-zarazen: #6fcf97;
+        --st-odhlasen: #6e6e6e;
+        min-height: 100vh;
+      }
+
+      /* ───── Horní lišta */
+      .bar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
         display: flex;
         align-items: center;
-        gap: 1.5rem;
-        height: 68px;
-        margin-bottom: 2rem;
+        gap: 1rem;
+        height: 64px;
+        padding-inline: clamp(1rem, 3vw, 2.5rem);
         border-bottom: 1px solid var(--line);
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
       }
 
-      .admin__brand {
+      .bar__brand {
         font-weight: 500;
         text-decoration: none;
+        white-space: nowrap;
       }
 
-      .admin__brand span {
+      .bar__brand span {
         color: var(--text-muted);
       }
 
-      .admin__title {
-        margin-right: auto;
-        color: var(--text-subtle);
-        font-family: var(--font-mono);
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
+      .bar__tag {
+        padding: 0.3rem 0.65rem;
+        border: 1px solid var(--line-strong);
+        border-radius: 999px;
+        color: var(--text-muted);
+        font-size: 0.72rem;
       }
 
-      .admin__btn {
-        min-height: 40px;
-        padding: 0.5rem 1rem;
+      .bar__user {
+        display: flex;
+        align-items: center;
+        gap: 0.9rem;
+        margin-left: auto;
+      }
+
+      .bar__email {
+        color: var(--text-subtle);
+        font-size: 0.82rem;
+      }
+
+      .main {
+        width: 100%;
+        max-width: 1400px;
+        margin-inline: auto;
+        padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 3vw, 2.5rem) 4rem;
+      }
+
+      .tag {
+        color: var(--text-subtle);
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      /* ───── Tlačítka a pole */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 0.55rem 1.1rem;
         border: 1px solid #fff;
         border-radius: 10px;
         background: #fff;
         color: #000;
         font-size: 0.875rem;
         font-weight: 500;
-        cursor: pointer;
         white-space: nowrap;
+        cursor: pointer;
+        transition: background-color 0.2s var(--ease), border-color 0.2s var(--ease);
       }
 
-      .admin__btn:hover {
+      .btn:hover {
         background: #e6e6e6;
       }
 
-      .admin__btn--ghost {
+      .btn--ghost {
         border-color: var(--line-strong);
         background: transparent;
         color: var(--text);
       }
 
-      .admin__btn--ghost:hover {
+      .btn--ghost:hover {
         background: rgba(255, 255, 255, 0.06);
       }
 
-      .admin__btn:disabled {
+      .btn--small {
+        min-height: 34px;
+        padding: 0.35rem 0.8rem;
+        font-size: 0.8rem;
+      }
+
+      .btn:disabled {
         opacity: 0.6;
         cursor: progress;
       }
 
-      /* Přihlášení */
-      .login {
-        display: grid;
-        place-items: center;
-        padding-top: 8vh;
-      }
-
-      .login__card {
-        display: grid;
-        gap: 1rem;
-        width: min(100%, 380px);
-        padding: 2rem;
-        border: 1px solid var(--line);
-        background: var(--surface);
-      }
-
-      .login__title {
-        font-size: 1.6rem;
-        font-weight: 500;
-      }
-
-      .login__lead {
-        margin-top: -0.5rem;
-        color: var(--text-muted);
-        font-size: 0.9rem;
-      }
-
-      .login__field {
+      .field {
         display: grid;
         gap: 0.4rem;
         font-size: 0.85rem;
         font-weight: 500;
       }
 
-      .login__field input,
-      .app__search,
-      .app__select,
-      .app__table select,
-      .app__table textarea {
+      .field input,
+      .search input,
+      .select,
+      .table select,
+      .table textarea {
         width: 100%;
-        min-height: 42px;
-        padding: 0.55rem 0.75rem;
+        min-height: 44px;
+        padding: 0.6rem 0.8rem;
         border: 1px solid var(--line-strong);
-        border-radius: 8px;
-        background: #0d0d0d;
+        border-radius: 10px;
+        background: #0b0b0b;
         color: var(--text);
         font-size: 0.9rem;
+        transition: border-color 0.2s var(--ease);
       }
 
-      .login__field input:focus,
-      .app__search:focus,
-      .app__select:focus,
-      .app__table select:focus,
-      .app__table textarea:focus {
+      .field input:focus,
+      .search input:focus,
+      .select:focus,
+      .table select:focus,
+      .table textarea:focus {
         outline: none;
         border-color: var(--accent);
+      }
+
+      /* ───── Přihlášení */
+      .login {
+        display: grid;
+        place-items: center;
+        min-height: calc(100vh - 64px - 8rem);
+      }
+
+      .login__card {
+        display: grid;
+        gap: 1.1rem;
+        width: min(100%, 400px);
+        padding: clamp(1.5rem, 5vw, 2.25rem);
+        border: 1px solid var(--line);
+        background: var(--surface);
+      }
+
+      .login__title {
+        margin-bottom: 0.25rem;
+        font-size: 1.75rem;
+        font-weight: 500;
+        letter-spacing: -0.02em;
       }
 
       .login__error {
@@ -234,134 +303,239 @@ const statuses = [
       }
 
       .notice {
-        padding: 4rem 0;
+        padding: 5rem 1rem;
         color: var(--text-muted);
         text-align: center;
       }
 
-      /* Seznam */
-      .app__toolbar {
+      /* ───── Přehled */
+      .app__head {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.75rem;
-        margin-bottom: 1.25rem;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 1rem 2rem;
+        margin-bottom: 1.75rem;
       }
 
-      .app__search {
-        flex: 1 1 260px;
+      .app__title {
+        margin-top: 0.4rem;
+        font-size: clamp(1.75rem, 3.5vw, 2.4rem);
+        font-weight: 500;
+        letter-spacing: -0.03em;
       }
 
-      .app__select {
-        flex: 0 1 200px;
-        width: auto;
-      }
-
-      .app__counts {
+      .app__actions {
         display: flex;
-        flex-wrap: wrap;
+        gap: 0.6rem;
+      }
+
+      /* Souhrn podle stavů */
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        margin-bottom: 1.5rem;
+        border-top: 1px solid var(--line);
+        border-left: 1px solid var(--line);
+      }
+
+      .stat {
+        display: grid;
+        gap: 0.35rem;
+        padding: 1.1rem 1.2rem;
+        border: 0;
+        border-right: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+        transition: background-color 0.2s var(--ease);
+      }
+
+      .stat:hover {
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .stat[aria-pressed='true'] {
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .stat__label {
+        display: flex;
+        align-items: center;
         gap: 0.5rem;
-        margin-bottom: 1.25rem;
-        list-style: none;
-      }
-
-      .app__counts li {
-        padding: 0.35rem 0.75rem;
-        border: 1px solid var(--line-strong);
-        border-radius: 999px;
         color: var(--text-muted);
         font-size: 0.8rem;
       }
 
-      .app__counts strong {
-        color: var(--text);
-        font-weight: 600;
+      .stat__value {
+        font-size: 1.9rem;
+        font-weight: 500;
+        line-height: 1;
+        letter-spacing: -0.03em;
       }
 
-      .app__table-wrap {
-        overflow-x: auto;
+      .dot {
+        flex: none;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--dot, var(--text-subtle));
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+      }
+
+      .search {
+        position: relative;
+        flex: 1 1 320px;
+      }
+
+      .search svg {
+        position: absolute;
+        top: 50%;
+        left: 0.8rem;
+        color: var(--text-subtle);
+        transform: translateY(-50%);
+        pointer-events: none;
+      }
+
+      .search input {
+        padding-left: 2.4rem;
+      }
+
+      .select {
+        flex: 0 1 220px;
+        width: auto;
+      }
+
+      /* ───── Tabulka (na mobilu karty) */
+      .list {
         border: 1px solid var(--line);
       }
 
-      .app__table {
+      .table {
         width: 100%;
-        min-width: 1200px;
         border-collapse: collapse;
         font-size: 0.85rem;
       }
 
-      .app__table th {
-        position: sticky;
-        top: 0;
-        padding: 0.75rem;
-        background: #0d0d0d;
+      .table th {
+        padding: 0.8rem 0.9rem;
+        border-bottom: 1px solid var(--line);
+        background: #0b0b0b;
         color: var(--text-subtle);
         font-family: var(--font-mono);
-        font-size: 0.7rem;
+        font-size: 0.68rem;
         font-weight: 400;
+        letter-spacing: 0.04em;
         text-align: left;
         text-transform: uppercase;
-        letter-spacing: 0.04em;
         white-space: nowrap;
       }
 
-      .app__table td {
-        padding: 0.75rem;
+      .table td {
+        padding: 0.9rem;
         border-top: 1px solid var(--line);
         vertical-align: top;
       }
 
-      .app__table tr:hover td {
+      .table td.cell--person {
+        min-width: 190px;
+      }
+
+      .table td:nth-child(2) {
+        white-space: nowrap;
+      }
+
+      .table tbody tr:first-child td {
+        border-top: 0;
+      }
+
+      .table tbody tr {
+        transition: background-color 0.2s var(--ease);
+      }
+
+      .table tbody tr:hover {
         background: rgba(255, 255, 255, 0.02);
       }
 
-      .cell-muted {
-        display: block;
-        color: var(--text-muted);
+      .person__name {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        font-size: 0.95rem;
+        font-weight: 500;
       }
 
-      .cell-note {
-        max-width: 220px;
+      .muted {
+        display: block;
+        margin-top: 0.2rem;
+        color: var(--text-subtle);
+        font-size: 0.78rem;
+      }
+
+      .table a {
+        text-decoration: none;
+      }
+
+      .table a:hover {
+        color: var(--accent);
+      }
+
+      .note {
+        max-width: 240px;
         color: var(--text-muted);
         white-space: pre-wrap;
       }
 
-      .app__table select {
-        min-width: 130px;
+      .status {
+        position: relative;
+        min-width: 150px;
       }
 
-      .app__table textarea {
+      .status .dot {
+        position: absolute;
+        top: 50%;
+        left: 0.8rem;
+        transform: translateY(-50%);
+        pointer-events: none;
+      }
+
+      .table .status select {
+        padding-left: 1.85rem;
+      }
+
+      .table textarea {
         min-width: 200px;
-        min-height: 42px;
+        min-height: 44px;
         resize: vertical;
       }
 
-      .row--zaplaceno td:first-child {
-        box-shadow: inset 3px 0 0 var(--tone-2);
-      }
-
-      .row--zarazen td:first-child {
-        box-shadow: inset 3px 0 0 #6fcf97;
-      }
-
-      .row--odhlasen td {
+      .row--odhlasen .person__name,
+      .row--odhlasen td:not(:nth-child(7)):not(:nth-child(8)) {
         opacity: 0.55;
       }
 
-      .row--nova td:first-child {
-        box-shadow: inset 3px 0 0 var(--accent);
-      }
-
       .delete {
+        padding: 0.4rem 0;
         border: 0;
         background: none;
         color: #ff9a9a;
         font-size: 0.8rem;
-        cursor: pointer;
         text-decoration: underline;
+        text-underline-offset: 3px;
+        cursor: pointer;
       }
 
-      .app__empty {
-        padding: 2rem;
+      .empty {
+        padding: 3rem 1rem;
         color: var(--text-muted);
         text-align: center;
       }
@@ -370,7 +544,10 @@ const statuses = [
         position: fixed;
         right: 1rem;
         bottom: 1rem;
-        padding: 0.6rem 1rem;
+        left: auto;
+        z-index: 20;
+        max-width: calc(100% - 2rem);
+        padding: 0.7rem 1rem;
         border: 1px solid var(--line-strong);
         border-radius: 10px;
         background: #111;
@@ -392,6 +569,126 @@ const statuses = [
         border-color: rgba(255, 122, 122, 0.5);
         color: #ffc2c2;
       }
+
+      /* ───── Tablet: tabulka se posouvá do strany */
+      @media (max-width: 1200px) and (min-width: 901px) {
+        .list {
+          overflow-x: auto;
+        }
+
+        .table {
+          min-width: 1100px;
+        }
+      }
+
+      /* ───── Mobil: každá přihláška jako karta */
+      @media (max-width: 900px) {
+        .bar__email {
+          display: none;
+        }
+
+        .app__actions {
+          width: 100%;
+        }
+
+        .app__actions .btn {
+          flex: 1;
+        }
+
+        .stats {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .stat:first-child {
+          grid-column: 1 / -1;
+        }
+
+        .select {
+          flex: 1 1 100%;
+        }
+
+        .list {
+          border: 0;
+        }
+
+        .table thead {
+          display: none;
+        }
+
+        .table,
+        .table tbody,
+        .table tr,
+        .table td {
+          display: block;
+          width: 100%;
+        }
+
+        .table tbody {
+          display: grid;
+          gap: 0.75rem;
+        }
+
+        .table tbody tr {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          border: 1px solid var(--line);
+          background: var(--surface);
+        }
+
+        .table td {
+          padding: 0.75rem 1rem;
+          border-top: 1px solid var(--line);
+        }
+
+        .table td[data-label]::before {
+          content: attr(data-label);
+          display: block;
+          margin-bottom: 0.3rem;
+          color: var(--text-subtle);
+          font-family: var(--font-mono);
+          font-size: 0.66rem;
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+        }
+
+        /* Jméno přes celou šířku nahoře, ostatní v mřížce */
+        .table td.cell--person,
+        .table td.cell--wide {
+          grid-column: 1 / -1;
+        }
+
+        .table td.cell--person {
+          border-top: 0;
+          padding-top: 1rem;
+        }
+
+        .table td.cell--person::before {
+          display: none;
+        }
+
+        .table td.cell--narrow:nth-of-type(odd) {
+          border-left: 1px solid var(--line);
+        }
+
+        .note {
+          max-width: none;
+        }
+
+        .table textarea,
+        .status {
+          min-width: 0;
+        }
+
+        .table td.cell--actions {
+          padding-block: 0.6rem 0.9rem;
+        }
+      }
+
+      @media (max-width: 420px) {
+        .bar__tag {
+          display: none;
+        }
+      }
     </style>
 
     <script>
@@ -411,46 +708,54 @@ const statuses = [
         stav: string;
         interni_poznamka: string | null;
       };
+      type Status = { value: string; label: string; plural: string };
 
       const root = document.querySelector<HTMLElement>('[data-admin]')!;
       const { url, key, table } = root.dataset as { url: string; key: string; table: string };
-      const statuses: { value: string; label: string }[] = JSON.parse(root.dataset.statuses!);
+      const statuses: Status[] = JSON.parse(root.dataset.statuses!);
       const db = createClient(url, key, { auth: { persistSession: true } });
 
       const $ = <T extends HTMLElement>(sel: string) => root.querySelector<T>(sel)!;
-      const views = ['login', 'notice', 'app'];
-      const show = (name: string) =>
-        views.forEach((v) => ($(`[data-view="${v}"]`).hidden = v !== name));
+      const show = (name: 'login' | 'notice' | 'app') =>
+        ['login', 'notice', 'app'].forEach((v) => ($(`[data-view="${v}"]`).hidden = v !== name));
 
       // Krátké oznámení vpravo dole
       let toastTimer = 0;
       const toast = (text: string, error = false) => {
-        const el = $('[data-toast]');
-        el.textContent = text;
-        el.classList.toggle('is-error', error);
-        el.classList.add('is-visible');
+        const node = $('[data-toast]');
+        node.textContent = text;
+        node.classList.toggle('is-error', error);
+        node.classList.add('is-visible');
         clearTimeout(toastTimer);
-        toastTimer = window.setTimeout(() => el.classList.remove('is-visible'), 2500);
+        toastTimer = window.setTimeout(() => node.classList.remove('is-visible'), 2600);
       };
 
       const dateTime = (iso: string) =>
         new Date(iso).toLocaleString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
       const date = (iso: string) => new Date(`${iso}T00:00:00`).toLocaleDateString('cs-CZ');
       const statusLabel = (value: string) => statuses.find((s) => s.value === value)?.label ?? value;
+      const dotColor = (value: string) => `var(--st-${value})`;
 
       let rows: Row[] = [];
 
-      // ───── Vykreslení tabulky (jen textContent – data se nikdy nevkládají jako HTML)
-      const el = (tag: string, text?: string | null, className?: string) => {
+      // Prvky se vytváří přes textContent – data se nikdy nevkládají jako HTML
+      const el = <K extends keyof HTMLElementTagNameMap>(tag: K, text?: string | null, className?: string) => {
         const node = document.createElement(tag);
         if (text != null) node.textContent = text;
         if (className) node.className = className;
         return node;
       };
+      const dot = (value: string) => {
+        const d = el('span', null, 'dot');
+        d.style.setProperty('--dot', dotColor(value));
+        return d;
+      };
+
+      const filterSelect = () => $<HTMLSelectElement>('[data-filter]');
 
       const filtered = () => {
         const q = $<HTMLInputElement>('[data-search]').value.trim().toLowerCase();
-        const stav = $<HTMLSelectElement>('[data-filter]').value;
+        const stav = filterSelect().value;
         return rows.filter((r) => {
           if (stav && r.stav !== stav) return false;
           if (!q) return true;
@@ -461,54 +766,83 @@ const statuses = [
         });
       };
 
-      const renderCounts = () => {
-        const list = $('[data-counts]');
-        list.replaceChildren();
-        const total = el('li');
-        total.append(el('strong', String(rows.length)), ' celkem');
-        list.append(total);
-        statuses.forEach((s) => {
-          const li = el('li');
-          li.append(el('strong', String(rows.filter((r) => r.stav === s.value).length)), ` ${s.label.toLowerCase()}`);
-          list.append(li);
+      // ───── Souhrn (tlačítka filtrují podle stavu)
+      const renderStats = () => {
+        const box = $('[data-stats]');
+        box.replaceChildren();
+        const current = filterSelect().value;
+        const items = [{ value: '', plural: 'Celkem' }, ...statuses];
+        items.forEach((s) => {
+          const btn = el('button', null, 'stat');
+          btn.type = 'button';
+          btn.setAttribute('aria-pressed', String(current === s.value));
+          const label = el('span', null, 'stat__label');
+          if (s.value) label.append(dot(s.value));
+          label.append(s.plural);
+          const count = s.value ? rows.filter((r) => r.stav === s.value).length : rows.length;
+          btn.append(label, el('span', String(count), 'stat__value'));
+          btn.addEventListener('click', () => {
+            filterSelect().value = current === s.value ? '' : s.value;
+            renderStats();
+            render();
+          });
+          box.append(btn);
         });
+      };
+
+      // ───── Seznam
+      const cell = (label: string | null, className = 'cell--narrow') => {
+        const td = el('td', null, className);
+        if (label) td.dataset.label = label;
+        return td;
       };
 
       const render = () => {
         const tbody = $('[data-rows]');
         tbody.replaceChildren();
         const list = filtered();
-        $('[data-empty]').hidden = list.length > 0;
+        const empty = $('[data-empty]');
+        empty.hidden = list.length > 0;
+        empty.textContent = rows.length
+          ? 'Žádné přihlášky neodpovídají hledání nebo filtru.'
+          : 'Zatím tu nejsou žádné přihlášky. Jakmile někdo odešle formulář na webu, objeví se zde.';
 
         list.forEach((r) => {
           const tr = el('tr', null, `row--${r.stav}`);
 
-          tr.append(el('td', dateTime(r.created_at)));
+          const person = cell(null, 'cell--person');
+          const name = el('span', null, 'person__name');
+          const nameDot = dot(r.stav);
+          name.append(nameDot, `${r.jmeno} ${r.prijmeni}`);
+          person.append(name, el('span', `Přijato ${dateTime(r.created_at)}`, 'muted'));
 
-          const name = el('td');
-          name.append(el('strong', `${r.jmeno} ${r.prijmeni}`));
-          tr.append(name);
+          const born = cell('Narozen/a');
+          born.textContent = date(r.datum_narozeni);
 
-          tr.append(el('td', date(r.datum_narozeni)));
-          tr.append(el('td', r.skola));
+          const school = cell('Škola');
+          school.textContent = r.skola;
 
-          const contactCell = el('td');
-          const mail = el('a', r.email) as HTMLAnchorElement;
+          const contactCell = cell('Kontakt', 'cell--wide');
+          const mail = el('a', r.email);
           mail.href = `mailto:${r.email}`;
-          const phone = el('a', r.telefon, 'cell-muted') as HTMLAnchorElement;
+          const phone = el('a', r.telefon, 'muted');
           phone.href = `tel:${r.telefon.replace(/\s/g, '')}`;
           contactCell.append(mail, phone);
-          tr.append(contactCell);
 
-          tr.append(el('td', r.adresa));
-          tr.append(el('td', r.poznamka ?? '', 'cell-note'));
+          const address = cell('Adresa', 'cell--wide');
+          address.textContent = r.adresa;
 
-          // Stav
-          const stavCell = el('td');
-          const select = el('select') as HTMLSelectElement;
+          const noteFromForm = cell('Poznámka', 'cell--wide');
+          noteFromForm.append(el('span', r.poznamka || '—', 'note'));
+
+          // Stav – uloží se hned po změně
+          const stavCell = cell('Stav', 'cell--wide');
+          const wrap = el('div', null, 'status');
+          const stDot = dot(r.stav);
+          const select = el('select');
           select.setAttribute('aria-label', `Stav přihlášky ${r.jmeno} ${r.prijmeni}`);
           statuses.forEach((s) => {
-            const opt = el('option', s.label) as HTMLOptionElement;
+            const opt = el('option', s.label);
             opt.value = s.value;
             opt.selected = s.value === r.stav;
             select.append(opt);
@@ -521,16 +855,18 @@ const statuses = [
             }
             r.stav = select.value;
             tr.className = `row--${r.stav}`;
-            renderCounts();
+            [stDot, nameDot].forEach((d) => d.style.setProperty('--dot', dotColor(r.stav)));
+            renderStats();
             toast(`Stav změněn na „${statusLabel(r.stav)}“.`);
           });
-          stavCell.append(select);
-          tr.append(stavCell);
+          wrap.append(stDot, select);
+          stavCell.append(wrap);
 
           // Interní poznámka – uloží se po opuštění pole
-          const noteCell = el('td');
-          const note = el('textarea') as HTMLTextAreaElement;
+          const noteCell = cell('Interní poznámka', 'cell--wide');
+          const note = el('textarea');
           note.rows = 2;
+          note.placeholder = 'Jen pro vás…';
           note.value = r.interni_poznamka ?? '';
           note.setAttribute('aria-label', `Interní poznámka k přihlášce ${r.jmeno} ${r.prijmeni}`);
           note.addEventListener('change', async () => {
@@ -541,46 +877,46 @@ const statuses = [
             toast('Poznámka uložena.');
           });
           noteCell.append(note);
-          tr.append(noteCell);
 
           // Smazání (GDPR – na vyžádání nebo po kurzu)
-          const actions = el('td');
-          const del = el('button', 'Smazat', 'delete') as HTMLButtonElement;
+          const actions = cell(null, 'cell--wide cell--actions');
+          const del = el('button', 'Smazat', 'delete');
           del.type = 'button';
           del.addEventListener('click', async () => {
             if (!confirm(`Opravdu trvale smazat přihlášku ${r.jmeno} ${r.prijmeni}? Tuto akci nelze vrátit.`)) return;
             const { error } = await db.from(table).delete().eq('id', r.id);
             if (error) return toast('Přihlášku se nepodařilo smazat.', true);
             rows = rows.filter((x) => x.id !== r.id);
-            renderCounts();
+            renderStats();
             render();
             toast('Přihláška smazána.');
           });
           actions.append(del);
-          tr.append(actions);
 
+          tr.append(person, born, school, contactCell, address, noteFromForm, stavCell, noteCell, actions);
           tbody.append(tr);
         });
       };
 
       // ───── Načtení dat
       const load = async () => {
+        const btn = $<HTMLButtonElement>('[data-refresh]');
+        btn.disabled = true;
         const { data, error } = await db.from(table).select('*').order('created_at', { ascending: false });
-        if (error) {
-          toast('Přihlášky se nepodařilo načíst.', true);
-          return;
-        }
+        btn.disabled = false;
+        if (error) return toast('Přihlášky se nepodařilo načíst.', true);
         rows = data as Row[];
-        renderCounts();
+        renderStats();
         render();
       };
 
       const enter = async (session: Session | null) => {
-        $('[data-logout]').hidden = !session;
+        $('[data-user]').hidden = !session;
+        $('[data-user-email]').textContent = session?.user.email ?? '';
         if (!session) return show('login');
 
         show('notice');
-        $('[data-notice-text]').textContent = 'Načítám…';
+        $('[data-notice-text]').textContent = 'Načítám přihlášky…';
         const { data: isAdmin, error } = await db.rpc('is_admin');
         if (error || !isAdmin) {
           $('[data-notice-text]').textContent =
@@ -594,13 +930,13 @@ const statuses = [
       // ───── Export do Excelu (CSV se středníkem a BOM – Excel ho otevře se správnou diakritikou)
       const exportCsv = () => {
         const head = ['Přijato', 'Jméno', 'Příjmení', 'Datum narození', 'Škola', 'Adresa', 'E-mail', 'Telefon', 'Poznámka', 'Stav', 'Interní poznámka'];
-        const cell = (v: string | null) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+        const q = (v: string | null) => `"${String(v ?? '').replace(/"/g, '""')}"`;
         const lines = filtered().map((r) =>
           [dateTime(r.created_at), r.jmeno, r.prijmeni, date(r.datum_narozeni), r.skola, r.adresa, r.email, r.telefon, r.poznamka, statusLabel(r.stav), r.interni_poznamka]
-            .map(cell)
+            .map(q)
             .join(';'),
         );
-        const csv = '﻿' + [head.map(cell).join(';'), ...lines].join('\r\n');
+        const csv = '﻿' + [head.map(q).join(';'), ...lines].join('\r\n');
         const link = document.createElement('a');
         link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
         link.download = `prihlasky-${new Date().toISOString().slice(0, 10)}.csv`;
@@ -630,7 +966,10 @@ const statuses = [
       $('[data-refresh]').addEventListener('click', load);
       $('[data-export]').addEventListener('click', exportCsv);
       $('[data-search]').addEventListener('input', render);
-      $('[data-filter]').addEventListener('change', render);
+      filterSelect().addEventListener('change', () => {
+        renderStats();
+        render();
+      });
 
       // Volání databáze se odkládá mimo callback (doporučení supabase-js – jinak hrozí zablokování)
       db.auth.onAuthStateChange((event, session) => {
