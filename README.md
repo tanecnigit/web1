@@ -24,6 +24,7 @@ npm run build    # produkční build do složky dist/
 - Formulář ukládá přihlášky do databáze **Supabase** (`src/data/supabase.js` – veřejná adresa a veřejný klíč, region EU).
 - Struktura databáze a pravidla přístupu: `supabase/schema.sql`. Návštěvník smí přihlášku jen odeslat; číst, upravovat a mazat je smí jen účet zapsaný v tabulce `admins`.
 - Administrace: `/admin` (na GitHub Pages `/web1/admin/`) – přihlášení e-mailem a heslem, seznam přihlášek, hledání, filtr a změna stavu, interní poznámky, export do Excelu (CSV) a mazání.
+- **Aplikace v mobilu:** administraci jde přidat na plochu telefonu jako samostatnou aplikaci „Přihlášky“ (manifest `public/admin/manifest.webmanifest`). Android/Chrome: ⋮ → *Přidat na plochu / Nainstalovat aplikaci*. iPhone/Safari: Sdílet → *Přidat na plochu*.
 - Nový administrátor: Supabase → Authentication → Users → Add user, pak spustit příkaz z konce `supabase/schema.sql`.
 - Veřejná registrace účtů je v Supabase vypnutá. Klíč `service_role` / secret do webu nikdy nepatří.
 

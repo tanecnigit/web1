@@ -18,11 +18,19 @@ const statuses = [
 <html lang="cs">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="robots" content="noindex, nofollow" />
     <meta name="theme-color" content="#000000" />
     <title>Administrace přihlášek | {site.name}</title>
     <link rel="icon" type="image/png" sizes="48x48" href={`${home}favicon-48.png`} />
+    <!-- Instalace na plochu telefonu (Android i iPhone) jako samostatná aplikace -->
+    <link rel="manifest" href={`${home}admin/manifest.webmanifest`} />
+    <link rel="apple-touch-icon" href={`${home}apple-touch-icon.png`} />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Přihlášky" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="format-detection" content="telephone=no" />
   </head>
   <body>
     <div
@@ -132,6 +140,13 @@ const statuses = [
         --st-zarazen: #6fcf97;
         --st-odhlasen: #6e6e6e;
         min-height: 100vh;
+        min-height: 100dvh;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      /* V nainstalované aplikaci se stránka „nepruží“ za okraj */
+      html:has(.admin) {
+        overscroll-behavior-y: none;
       }
 
       /* ───── Horní lišta */
@@ -142,8 +157,9 @@ const statuses = [
         display: flex;
         align-items: center;
         gap: 1rem;
-        height: 64px;
-        padding-inline: clamp(1rem, 3vw, 2.5rem);
+        height: calc(64px + env(safe-area-inset-top));
+        padding-top: env(safe-area-inset-top);
+        padding-inline: max(clamp(1rem, 3vw, 2.5rem), env(safe-area-inset-left)) max(clamp(1rem, 3vw, 2.5rem), env(safe-area-inset-right));
         border-bottom: 1px solid var(--line);
         background: rgba(0, 0, 0, 0.85);
         backdrop-filter: blur(12px);
@@ -184,7 +200,8 @@ const statuses = [
         width: 100%;
         max-width: 1400px;
         margin-inline: auto;
-        padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 3vw, 2.5rem) 4rem;
+        padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 3vw, 2.5rem) calc(4rem + env(safe-area-inset-bottom));
+        padding-inline: max(clamp(1rem, 3vw, 2.5rem), env(safe-area-inset-left)) max(clamp(1rem, 3vw, 2.5rem), env(safe-area-inset-right));
       }
 
       .tag {
@@ -274,7 +291,7 @@ const statuses = [
       .login {
         display: grid;
         place-items: center;
-        min-height: calc(100vh - 64px - 8rem);
+        min-height: calc(100dvh - 64px - 8rem);
       }
 
       .login__card {
@@ -543,7 +560,7 @@ const statuses = [
       .toast {
         position: fixed;
         right: 1rem;
-        bottom: 1rem;
+        bottom: calc(1rem + env(safe-area-inset-bottom));
         left: auto;
         z-index: 20;
         max-width: calc(100% - 2rem);
@@ -585,6 +602,20 @@ const statuses = [
       @media (max-width: 900px) {
         .bar__email {
           display: none;
+        }
+
+        /* iPhone přibližuje stránku u polí s písmem pod 16 px */
+        .field input,
+        .search input,
+        .select,
+        .table select,
+        .table textarea {
+          font-size: 16px;
+        }
+
+        .toast {
+          left: 1rem;
+          text-align: center;
         }
 
         .app__actions {
