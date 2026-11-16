@@ -60,7 +60,6 @@ npm run build    # produkční build do složky dist/
 
 ## Chybějící údaje (hledejte `TODO:` v kódu)
 
-- adresa skriptu Google Tabulky (`src/data/backend.js`) – viz Nastavení výše,
 - výše zápisného (zálohy) a platební údaje / číslo účtu,
 - přesná adresa sálu (Závodní klub PO Lighting Czech),
 - ověření finální domény,

@@ -5,6 +5,5 @@
  * Adresu získáte v Apps Scriptu: Nasadit → Spravovat nasazení → „Webová aplikace“ → URL (končí na /exec).
  */
 export const backend = {
-  // TODO: doplnit adresu webové aplikace z Apps Scriptu
-  scriptUrl: '',
+  scriptUrl: 'https://script.google.com/macros/s/AKfycbx_9HdvBbXTmfSsCG5WPZeFxw_Wvxn8GqHghPGu7vXPsHikDT3IKS4Y8cAWJ1PSOsV6/exec',
 };
