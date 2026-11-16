@@ -31,7 +31,7 @@ npm run build    # produkční build do složky dist/
 
 - **Animovaný gradient** se spouští až po načtení stránky a jen když je vidět. Na slabých zařízeních, v úsporném režimu dat a při vypnutých animacích je statický. Bez hardwarové akcelerace grafiky nebo bez WebGL se místo něj zobrazí CSS gradient.
 - **Obrázky** se generují v AVIF/WebP v několika velikostech (JPG jako záloha). Fonty jsou lokální a ty pro nadpis se načítají přednostně.
-- **Bez JavaScriptu** je obsah celý čitelný a formulář s přihláškou zůstává dostupný.
+- **Bez JavaScriptu** je obsah celý čitelný; odeslání formuláře JavaScript vyžaduje, kontakty pro přihlášku telefonem či e-mailem jsou hned vedle formuláře.
 - **SEO:** title, description, canonical, Open Graph a Twitter karty. Strukturovaná data obsahují WebSite, DanceSchool, Course a FAQPage (časté dotazy se mohou zobrazit přímo ve výsledcích Googlu). Dále `sitemap.xml`, `robots.txt` a `site.webmanifest`.
 - **Hosting:** `public/.htaccess` (Apache – komprese a cache) a `public/_headers` (Netlify / Cloudflare Pages). Na jiném hostingu se ignorují.
 
