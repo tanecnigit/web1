@@ -28,6 +28,19 @@ npm run build    # produkční build do složky dist/
 - Nový administrátor: Supabase → Authentication → Users → Add user, pak spustit příkaz z konce `supabase/schema.sql`.
 - Veřejná registrace účtů je v Supabase vypnutá. Klíč `service_role` / secret do webu nikdy nepatří.
 
+### Buzení databáze (aby mimo sezónu neusnula)
+
+- Bezplatný Supabase uspí projekt po týdnu bez aktivity. Úloha `.github/workflows/keepalive.yml` proto každé 3 dny pošle jeden neškodný dotaz (nic nečte ani nezapisuje) a zkontroluje, že web běží.
+- **Když něco selže, přijde e-mail od GitHubu** („Run failed: Buzení databáze“). Pak stačí v Supabase otevřít projekt a případně kliknout na *Restore*. Data se uspáním neztrácí.
+- Ručně spustit: GitHub → Actions → *Buzení databáze* → *Run workflow*.
+
+### Kontrola jednou ročně (třeba v srpnu, před přihláškami)
+
+1. GitHub → Actions → *Buzení databáze*: poslední běhy mají zelenou fajfku. Pokud je nahoře žlutý pruh „This scheduled workflow is disabled“, klikněte na *Enable workflow*.
+2. Přihlásit se do administrace a ověřit, že se načtou přihlášky.
+3. Odeslat zkušební přihlášku z webu a pak ji v administraci smazat.
+4. Smazat přihlášky z minulého roku (nejdřív *Export do Excelu*, pokud je chcete schovat).
+
 ## Výkon, kompatibilita a SEO
 
 - **Animovaný gradient** se spouští až po načtení stránky a jen když je vidět. Na slabých zařízeních, v úsporném režimu dat a při vypnutých animacích je statický. Bez hardwarové akcelerace grafiky nebo bez WebGL se místo něj zobrazí CSS gradient.
