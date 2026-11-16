@@ -4,7 +4,7 @@ import Button from '../Button.astro';
 import GradientBackground from '../GradientBackground.astro';
 import Corners from '../Corners.astro';
 import { signup, contact, terms, closing } from '../../data/content.js';
-import { supabase } from '../../data/supabase.js';
+import { backend } from '../../data/backend.js';
 
 const fields = [
   { name: 'jmeno', label: 'Jméno', placeholder: 'Např. Jana', autocomplete: 'given-name', required: true },
@@ -35,8 +35,7 @@ const fields = [
       <form
         class="form card"
         data-signup-form
-        data-endpoint={`${supabase.url}/rest/v1/${supabase.table}`}
-        data-key={supabase.publishableKey}
+        data-endpoint={backend.scriptUrl}
         data-email={contact.email}
         novalidate
         data-reveal
@@ -437,13 +436,13 @@ const fields = [
 </style>
 
 <script>
-  // Odeslání přihlášky do databáze (Supabase REST API) – bez knihovny, jen fetch
+  // Odeslání přihlášky do Google Tabulky (Apps Script) – bez knihovny, jen fetch
   const form = document.querySelector<HTMLFormElement>('[data-signup-form]');
 
   if (form) {
     const status = form.querySelector<HTMLElement>('[data-status]')!;
     const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
-    const { endpoint, key, email } = form.dataset;
+    const { endpoint, email } = form.dataset;
 
     const validate = (input: HTMLInputElement) => {
       const error = form.querySelector<HTMLElement>(`#e-${input.name}`);
@@ -501,22 +500,22 @@ const fields = [
         adresa: value('adresa'),
         email: value('email'),
         telefon: value('telefon'),
-        poznamka: value('poznamka') || null,
+        poznamka: value('poznamka'),
         souhlas: true,
       };
 
       submit.disabled = true;
       try {
-        const res = await fetch(endpoint!, {
+        if (!endpoint) throw new Error('Chybí adresa skriptu');
+        // text/plain = bez předběžného CORS dotazu, který Apps Script neumí obsloužit
+        const res = await fetch(endpoint, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            apikey: key!,
-            Prefer: 'return=minimal',
-          },
-          body: JSON.stringify(payload),
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'submit', data: payload }),
+          redirect: 'follow',
         });
-        if (!res.ok) throw new Error(String(res.status));
+        const result = await res.json();
+        if (!result.ok) throw new Error(result.error);
         done();
       } catch {
         status.classList.add('is-error');

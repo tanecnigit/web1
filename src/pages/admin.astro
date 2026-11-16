@@ -1,8 +1,9 @@
 ---
-// Administrace přihlášek – přihlášení přes Supabase Auth, data chrání pravidla v databázi.
+// Administrace přihlášek – data jsou v Google Tabulce, přístup mají ti, s nimiž je tabulka nasdílená.
+// Přihlášení kódem z e-mailu (posílá ho skript u tabulky, viz apps-script/Code.gs).
 // Stránka se neindexuje a bez přihlášení nic nenačte.
 import '../styles/global.css';
-import { supabase } from '../data/supabase.js';
+import { backend } from '../data/backend.js';
 import { site } from '../data/content.js';
 
 const home = import.meta.env.BASE_URL;
@@ -36,9 +37,7 @@ const statuses = [
     <div
       class="admin"
       data-admin
-      data-url={supabase.url}
-      data-key={supabase.publishableKey}
-      data-table={supabase.table}
+      data-url={backend.scriptUrl}
       data-statuses={JSON.stringify(statuses)}
       data-sw={`${home}admin/sw.js`}
     >
@@ -66,19 +65,43 @@ const statuses = [
         </aside>
         <!-- Přihlášení -->
         <section class="login" data-view="login" hidden>
-          <form class="login__card" data-login-form>
+          <!-- Krok 1: e-mail -->
+          <form class="login__card" data-login-email>
             <p class="tag">Přístup pro správce</p>
             <h1 class="login__title">Přihlášení</h1>
+            <p class="login__lead">Zadejte e-mail, se kterým je sdílená tabulka přihlášek. Pošleme vám na něj kód.</p>
             <label class="field">
               <span>E-mail</span>
-              <input type="email" name="email" autocomplete="username" required />
+              <input type="email" name="email" autocomplete="email" inputmode="email" required />
             </label>
+            <button class="btn" type="submit">Poslat kód</button>
+            <p class="login__error" role="alert" data-login-error></p>
+          </form>
+
+          <!-- Krok 2: kód z e-mailu -->
+          <form class="login__card" data-login-code hidden>
+            <p class="tag">Přístup pro správce</p>
+            <h1 class="login__title">Zadejte kód</h1>
+            <p class="login__lead">
+              Pokud má <b data-login-sent></b> přístup, přišel na něj e-mail s šestimístným kódem. Platí 10 minut.
+              Nevidíte ho? Podívejte se i do spamu.
+            </p>
             <label class="field">
-              <span>Heslo</span>
-              <input type="password" name="password" autocomplete="current-password" required />
+              <span>Kód z e-mailu</span>
+              <input
+                class="login__code"
+                type="text"
+                name="code"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                pattern="[0-9]{6}"
+                maxlength="6"
+                required
+              />
             </label>
             <button class="btn" type="submit">Přihlásit se</button>
-            <p class="login__error" role="alert" data-login-error></p>
+            <button class="login__back" type="button" data-login-back>Použít jiný e-mail</button>
+            <p class="login__error" role="alert" data-code-error></p>
           </form>
         </section>
 
@@ -321,6 +344,38 @@ const statuses = [
         font-size: 1.75rem;
         font-weight: 500;
         letter-spacing: -0.02em;
+      }
+
+      .login__lead {
+        margin-top: -0.4rem;
+        color: var(--text-muted);
+        font-size: 0.875rem;
+        line-height: 1.55;
+      }
+
+      .login__lead b {
+        color: var(--text);
+        font-weight: 500;
+        word-break: break-all;
+      }
+
+      .field input.login__code {
+        font-family: var(--font-mono);
+        font-size: 1.4rem;
+        letter-spacing: 0.4em;
+        text-align: center;
+      }
+
+      .login__back {
+        justify-self: center;
+        padding: 0.25rem;
+        border: 0;
+        background: none;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+        cursor: pointer;
       }
 
       .login__error {
@@ -798,8 +853,6 @@ const statuses = [
     </style>
 
     <script>
-      import { createClient, type Session } from '@supabase/supabase-js';
-
       type Row = {
         id: string;
         created_at: string;
@@ -810,16 +863,62 @@ const statuses = [
         adresa: string;
         email: string;
         telefon: string;
-        poznamka: string | null;
+        poznamka: string;
         stav: string;
-        interni_poznamka: string | null;
+        interni_poznamka: string;
       };
       type Status = { value: string; label: string; plural: string };
+      type Reply = { ok: boolean; error?: string; [key: string]: unknown };
 
       const root = document.querySelector<HTMLElement>('[data-admin]')!;
-      const { url, key, table } = root.dataset as { url: string; key: string; table: string };
+      const url = root.dataset.url ?? '';
       const statuses: Status[] = JSON.parse(root.dataset.statuses!);
-      const db = createClient(url, key, { auth: { persistSession: true } });
+
+      // ───── Přihlášení (token od skriptu, platí několik měsíců)
+      const SESSION_KEY = 'admin-session';
+      type SessionData = { token: string; email: string };
+      let memorySession: SessionData | null = null;
+      const getSession = (): SessionData | null => {
+        try {
+          const raw = localStorage.getItem(SESSION_KEY);
+          if (raw) return JSON.parse(raw);
+        } catch {}
+        return memorySession;
+      };
+      const setSession = (s: SessionData | null) => {
+        memorySession = s;
+        try {
+          if (s) localStorage.setItem(SESSION_KEY, JSON.stringify(s));
+          else localStorage.removeItem(SESSION_KEY);
+        } catch {}
+      };
+
+      // Všechny požadavky jdou na Apps Script jako text/plain (bez předběžného CORS dotazu)
+      const call = async (action: string, body: Record<string, unknown> = {}): Promise<Reply> => {
+        if (!url) return { ok: false, error: 'config' };
+        try {
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action, ...body }),
+            redirect: 'follow',
+          });
+          return (await res.json()) as Reply;
+        } catch {
+          return { ok: false, error: 'network' };
+        }
+      };
+
+      // Požadavek správce – při neplatném přihlášení vrátí na přihlašovací obrazovku
+      const adminCall = async (action: string, body: Record<string, unknown> = {}) => {
+        const reply = await call(action, { token: getSession()?.token, ...body });
+        if (reply.error === 'auth') {
+          setSession(null);
+          enter();
+          loginError('Přihlášení vypršelo nebo k tabulce už nemáte přístup. Přihlaste se prosím znovu.');
+        }
+        return reply;
+      };
 
       const $ = <T extends HTMLElement>(sel: string) => root.querySelector<T>(sel)!;
       const show = (name: 'login' | 'notice' | 'app') =>
@@ -836,9 +935,13 @@ const statuses = [
         toastTimer = window.setTimeout(() => node.classList.remove('is-visible'), 2600);
       };
 
-      const dateTime = (iso: string) =>
-        new Date(iso).toLocaleString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-      const date = (iso: string) => new Date(`${iso}T00:00:00`).toLocaleDateString('cs-CZ');
+      // Řádky přidané ručně v tabulce nemusí mít platné datum – pak se zobrazí, jak jsou
+      const dateTime = (iso: string) => {
+        const d = new Date(iso);
+        return Number.isNaN(d.getTime())
+          ? iso
+          : d.toLocaleString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      };
       const statusLabel = (value: string) => statuses.find((s) => s.value === value)?.label ?? value;
       const dotColor = (value: string) => `var(--st-${value})`;
 
@@ -920,10 +1023,11 @@ const statuses = [
           const name = el('span', null, 'person__name');
           const nameDot = dot(r.stav);
           name.append(nameDot, `${r.jmeno} ${r.prijmeni}`);
-          person.append(name, el('span', `Přijato ${dateTime(r.created_at)}`, 'muted'));
+          if (r.created_at) person.append(name, el('span', `Přijato ${dateTime(r.created_at)}`, 'muted'));
+          else person.append(name);
 
           const born = cell('Narozen/a');
-          born.textContent = date(r.datum_narozeni);
+          born.textContent = r.datum_narozeni || '—';
 
           const school = cell('Škola');
           school.textContent = r.skola;
@@ -954,8 +1058,11 @@ const statuses = [
             select.append(opt);
           });
           select.addEventListener('change', async () => {
-            const { error } = await db.from(table).update({ stav: select.value }).eq('id', r.id);
-            if (error) {
+            select.disabled = true;
+            const reply = await adminCall('update', { id: r.id, changes: { stav: select.value } });
+            select.disabled = false;
+            if (!reply.ok) {
+              if (reply.error === 'auth') return;
               select.value = r.stav;
               return toast('Stav se nepodařilo uložit.', true);
             }
@@ -974,11 +1081,12 @@ const statuses = [
           note.rows = 2;
           note.placeholder = 'Jen pro vás…';
           note.value = r.interni_poznamka ?? '';
+          note.maxLength = 2000;
           note.setAttribute('aria-label', `Interní poznámka k přihlášce ${r.jmeno} ${r.prijmeni}`);
           note.addEventListener('change', async () => {
-            const value = note.value.trim() || null;
-            const { error } = await db.from(table).update({ interni_poznamka: value }).eq('id', r.id);
-            if (error) return toast('Poznámku se nepodařilo uložit.', true);
+            const value = note.value.trim();
+            const reply = await adminCall('update', { id: r.id, changes: { interni_poznamka: value } });
+            if (!reply.ok) return reply.error === 'auth' || toast('Poznámku se nepodařilo uložit.', true);
             r.interni_poznamka = value;
             toast('Poznámka uložena.');
           });
@@ -990,8 +1098,12 @@ const statuses = [
           del.type = 'button';
           del.addEventListener('click', async () => {
             if (!confirm(`Opravdu trvale smazat přihlášku ${r.jmeno} ${r.prijmeni}? Tuto akci nelze vrátit.`)) return;
-            const { error } = await db.from(table).delete().eq('id', r.id);
-            if (error) return toast('Přihlášku se nepodařilo smazat.', true);
+            del.disabled = true;
+            const reply = await adminCall('delete', { id: r.id });
+            del.disabled = false;
+            if (!reply.ok && reply.error !== 'missing') {
+              return reply.error === 'auth' || toast('Přihlášku se nepodařilo smazat.', true);
+            }
             rows = rows.filter((x) => x.id !== r.id);
             renderStats();
             render();
@@ -1005,32 +1117,69 @@ const statuses = [
       };
 
       // ───── Načtení dat
+      let loading = false;
+      let loadedAt = 0;
       const load = async () => {
+        if (loading) return false;
+        loading = true;
         const btn = $<HTMLButtonElement>('[data-refresh]');
         btn.disabled = true;
-        const { data, error } = await db.from(table).select('*').order('created_at', { ascending: false });
+        btn.textContent = 'Načítám…';
+        const reply = await adminCall('list');
         btn.disabled = false;
-        if (error) return toast('Přihlášky se nepodařilo načíst.', true);
-        rows = data as Row[];
+        btn.textContent = 'Obnovit';
+        loading = false;
+        if (!reply.ok) {
+          if (reply.error !== 'auth') toast('Přihlášky se nepodařilo načíst. Zkontrolujte připojení a zkuste Obnovit.', true);
+          return false;
+        }
+        rows = reply.rows as Row[];
+        loadedAt = Date.now();
         renderStats();
         render();
+        return true;
       };
 
-      const enter = async (session: Session | null) => {
-        $('[data-user]').hidden = !session;
-        $('[data-user-email]').textContent = session?.user.email ?? '';
-        if (!session) return show('login');
+      const loginError = (text: string) => ($('[data-login-error]').textContent = text);
 
-        show('notice');
-        $('[data-notice-text]').textContent = 'Načítám přihlášky…';
-        const { data: isAdmin, error } = await db.rpc('is_admin');
-        if (error || !isAdmin) {
+      const loginStep = (step: 'email' | 'code') => {
+        $('[data-login-email]').hidden = step !== 'email';
+        $('[data-login-code]').hidden = step !== 'code';
+        const focus = $(step === 'email' ? '[data-login-email] input' : '[data-login-code] input');
+        setTimeout(() => focus.focus(), 0);
+      };
+
+      const enter = async () => {
+        const session = getSession();
+        $('[data-user]').hidden = !session;
+        $('[data-user-email]').textContent = session?.email ?? '';
+
+        if (!url) {
+          show('notice');
           $('[data-notice-text]').textContent =
-            'Tento účet nemá oprávnění k přihláškám. Přidejte ho do tabulky administrátorů (viz supabase/schema.sql).';
+            'Administrace zatím není propojená s tabulkou – v src/data/backend.js chybí adresa skriptu.';
           return;
         }
-        show('app');
-        await load();
+        if (!session) {
+          show('login');
+          loginStep('email');
+          return;
+        }
+
+        // První načtení – dokud nejsou data, ukazuje se „Načítám“
+        if (!rows.length && !loadedAt) {
+          show('notice');
+          $('[data-notice-text]').textContent = 'Načítám přihlášky…';
+        }
+        const ok = await load();
+        if (getSession()) {
+          show('app');
+          if (!ok && !loadedAt) {
+            show('notice');
+            $('[data-notice-text]').textContent =
+              'Přihlášky se nepodařilo načíst. Zkontrolujte připojení k internetu a obnovte stránku.';
+          }
+        }
       };
 
       // ───── Export do Excelu (CSV se středníkem a BOM – Excel ho otevře se správnou diakritikou)
@@ -1038,7 +1187,7 @@ const statuses = [
         const head = ['Přijato', 'Jméno', 'Příjmení', 'Datum narození', 'Škola', 'Adresa', 'E-mail', 'Telefon', 'Poznámka', 'Stav', 'Interní poznámka'];
         const q = (v: string | null) => `"${String(v ?? '').replace(/"/g, '""')}"`;
         const lines = filtered().map((r) =>
-          [dateTime(r.created_at), r.jmeno, r.prijmeni, date(r.datum_narozeni), r.skola, r.adresa, r.email, r.telefon, r.poznamka, statusLabel(r.stav), r.interni_poznamka]
+          [dateTime(r.created_at), r.jmeno, r.prijmeni, r.datum_narozeni, r.skola, r.adresa, r.email, r.telefon, r.poznamka, statusLabel(r.stav), r.interni_poznamka]
             .map(q)
             .join(';'),
         );
@@ -1124,24 +1273,78 @@ const statuses = [
       setupInstall();
 
       // ───── Události
-      $('[data-login-form]').addEventListener('submit', async (e) => {
+      // Krok 1 – poslat kód
+      let loginEmail = '';
+      const errorText: Record<string, string> = {
+        rate: 'Příliš mnoho pokusů. Zkuste to prosím za hodinu.',
+        invalid: 'Zadejte platný e-mail.',
+        network: 'Nepodařilo se spojit se serverem. Zkontrolujte připojení k internetu.',
+        config: 'Administrace není propojená s tabulkou.',
+      };
+
+      $('[data-login-email]').addEventListener('submit', async (e) => {
         e.preventDefault();
         const form = e.currentTarget as HTMLFormElement;
-        const button = form.querySelector('button')!;
-        const errorEl = $('[data-login-error]');
-        errorEl.textContent = '';
+        const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+        loginError('');
+        loginEmail = String(new FormData(form).get('email') ?? '').trim().toLowerCase();
         button.disabled = true;
-        const fd = new FormData(form);
-        const { error } = await db.auth.signInWithPassword({
-          email: String(fd.get('email')),
-          password: String(fd.get('password')),
-        });
+        button.textContent = 'Posílám…';
+        const reply = await call('requestCode', { email: loginEmail });
         button.disabled = false;
-        if (error) errorEl.textContent = 'Nesprávný e-mail nebo heslo.';
-        else form.reset();
+        button.textContent = 'Poslat kód';
+        if (!reply.ok) return loginError(errorText[reply.error ?? ''] ?? 'Kód se nepodařilo odeslat. Zkuste to znovu.');
+        $('[data-login-sent]').textContent = loginEmail;
+        $('[data-code-error]').textContent = '';
+        loginStep('code');
       });
 
-      $('[data-logout]').addEventListener('click', () => db.auth.signOut());
+      // Krok 2 – ověřit kód
+      $('[data-login-code]').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.currentTarget as HTMLFormElement;
+        const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+        const errorEl = $('[data-code-error]');
+        const input = form.querySelector<HTMLInputElement>('input')!;
+        errorEl.textContent = '';
+        button.disabled = true;
+        button.textContent = 'Ověřuji…';
+        const reply = await call('verifyCode', { email: loginEmail, code: input.value });
+        button.disabled = false;
+        button.textContent = 'Přihlásit se';
+        if (!reply.ok) {
+          const messages: Record<string, string> = {
+            code: 'Kód nesouhlasí. Zkontrolujte ho a zkuste znovu.',
+            expired: 'Platnost kódu vypršela. Klikněte na „Použít jiný e-mail“ a požádejte o nový.',
+            auth: 'Tento e-mail nemá k tabulce přihlášek přístup.',
+          };
+          errorEl.textContent = messages[reply.error ?? ''] ?? errorText[reply.error ?? ''] ?? 'Přihlášení se nepodařilo.';
+          input.select();
+          return;
+        }
+        form.reset();
+        setSession({ token: String(reply.token), email: String(reply.email) });
+        enter();
+      });
+
+      $('[data-login-back]').addEventListener('click', () => {
+        loginError('');
+        loginStep('email');
+      });
+
+      $('[data-logout]').addEventListener('click', () => {
+        setSession(null);
+        rows = [];
+        loadedAt = 0;
+        $<HTMLInputElement>('[data-search]').value = '';
+        filterSelect().value = '';
+        enter();
+      });
+
+      // Po návratu do aplikace (např. přepnutí z jiné aplikace v telefonu) se data obnoví
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && getSession() && Date.now() - loadedAt > 30_000) load();
+      });
       $('[data-refresh]').addEventListener('click', load);
       $('[data-export]').addEventListener('click', exportCsv);
       $('[data-search]').addEventListener('input', render);
@@ -1150,12 +1353,7 @@ const statuses = [
         render();
       });
 
-      // Volání databáze se odkládá mimo callback (doporučení supabase-js – jinak hrozí zablokování)
-      db.auth.onAuthStateChange((event, session) => {
-        if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-          setTimeout(() => enter(session), 0);
-        }
-      });
+      enter();
     </script>
   </body>
 </html>

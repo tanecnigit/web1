@@ -21,25 +21,34 @@ npm run build    # produkční build do složky dist/
 
 ## Přihlášky a administrace
 
-- Formulář ukládá přihlášky do databáze **Supabase** (`src/data/supabase.js` – veřejná adresa a veřejný klíč, region EU).
-- Struktura databáze a pravidla přístupu: `supabase/schema.sql`. Návštěvník smí přihlášku jen odeslat; číst, upravovat a mazat je smí jen účet zapsaný v tabulce `admins`.
-- Administrace: `/admin` (na GitHub Pages `/web1/admin/`) – přihlášení e-mailem a heslem, seznam přihlášek, hledání, filtr a změna stavu, interní poznámky, export do Excelu (CSV) a mazání.
-- **Aplikace v mobilu:** administraci jde přidat na plochu telefonu jako samostatnou aplikaci „Přihlášky“ (manifest `public/admin/manifest.webmanifest`). Android/Chrome: ⋮ → *Přidat na plochu / Nainstalovat aplikaci*. iPhone/Safari: Sdílet → *Přidat na plochu*.
-- Nový administrátor: Supabase → Authentication → Users → Add user, pak spustit příkaz z konce `supabase/schema.sql`.
-- Veřejná registrace účtů je v Supabase vypnutá. Klíč `service_role` / secret do webu nikdy nepatří.
+- **Data jsou v Google Tabulce** v Google účtu školy. Formulář na webu posílá přihlášky skriptu u tabulky (`apps-script/Code.gs`), ten je zapíše jako nový řádek a pošle škole e-mail „Nová přihláška“.
+- **Adresa skriptu** je v `src/data/backend.js` (je veřejná, patří do webu).
+- **Administrace:** `/admin` (na GitHub Pages `/web1/admin/`): seznam přihlášek, hledání, filtr a změna stavu, interní poznámky, export do Excelu (CSV) a mazání. Vše se zapisuje přímo do tabulky; úpravy provedené v tabulce se v administraci ukážou po obnovení.
+- **Kdo je správce:** každý, s kým je tabulka nasdílená jako *Editor* (a vlastník). Přidat: v tabulce *Sdílet* → zadat e-mail → *Editor*. Odebrat: tamtéž odebrat, přístup zanikne okamžitě.
+- **Přihlášení:** správce zadá svůj e-mail a dostane šestimístný kód (platí 10 minut). Pak zůstane přihlášený 180 dní. Žádná hesla.
+- **Aplikace v mobilu:** administraci jde přidat na plochu telefonu jako aplikaci „Přihlášky“ (`public/admin/manifest.webmanifest`). Android/Chrome: ⋮ → *Nainstalovat aplikaci*. iPhone/Safari: Sdílet → *Přidat na plochu*.
 
-### Buzení databáze (aby mimo sezónu neusnula)
+### Co se v tabulce smí
 
-- Bezplatný Supabase uspí projekt po týdnu bez aktivity. Úloha `.github/workflows/keepalive.yml` proto každé 3 dny pošle jeden neškodný dotaz (nic nečte ani nezapisuje) a zkontroluje, že web běží.
-- **Když něco selže, přijde e-mail od GitHubu** („Run failed: Buzení databáze“). Pak stačí v Supabase otevřít projekt a případně kliknout na *Restore*. Data se uspáním neztrácí.
-- Ručně spustit: GitHub → Actions → *Buzení databáze* → *Run workflow*.
+- Řadit, filtrovat, barvit, přidávat vlastní sloupce, mazat řádky, měnit stav i poznámky – administrace si to přečte.
+- **Neměnit názvy sloupců v prvním řádku** (jsou chráněné varováním) a neměnit hodnoty ve sloupci *ID*.
 
-### Kontrola jednou ročně (třeba v srpnu, před přihláškami)
+### Nastavení (jednorázově, v Google účtu školy)
 
-1. GitHub → Actions → *Buzení databáze*: poslední běhy mají zelenou fajfku. Pokud je nahoře žlutý pruh „This scheduled workflow is disabled“, klikněte na *Enable workflow*.
-2. Přihlásit se do administrace a ověřit, že se načtou přihlášky.
-3. Odeslat zkušební přihlášku z webu a pak ji v administraci smazat.
-4. Smazat přihlášky z minulého roku (nejdřív *Export do Excelu*, pokud je chcete schovat).
+1. Na [sheets.new](https://sheets.new) vytvořte tabulku a pojmenujte ji např. „Přihlášky – taneční kurz“.
+2. V tabulce *Rozšíření → Apps Script*. Smažte předvyplněný kód, vložte celý obsah `apps-script/Code.gs` a uložte (Ctrl+S). Projekt pojmenujte „Přihlášky“.
+3. Nahoře vyberte funkci **setup** → *Spustit*. Google se zeptá na oprávnění: vyberte účet → „Google tuto aplikaci neověřil“ → *Rozšířená nastavení* → *Přejít na Přihlášky* → *Povolit*. (Jde o váš vlastní skript, varování se ukáže jen jednou.)
+4. *Nasadit → Nové nasazení* → ozubené kolo → *Webová aplikace*. **Spustit jako: Já**, **Kdo má přístup: Kdokoli** → *Nasadit*. Zkopírujte adresu webové aplikace (končí na `/exec`).
+5. Adresu vložte do `src/data/backend.js` (`scriptUrl`) a web znovu nasaďte.
+6. V tabulce *Sdílet* přidejte jako *Editor* všechny, kdo mají vidět přihlášky.
+
+**Po úpravě skriptu** je potřeba nová verze nasazení: *Nasadit → Spravovat nasazení* → tužka → *Verze: Nová verze* → *Nasadit* (adresa zůstane stejná).
+
+**Změna domény webu:** v `apps-script/Code.gs` upravit `ADMIN_URL` (odkaz v e-mailech) a nasadit novou verzi.
+
+**Ztracený telefon:** v Apps Scriptu spustit funkci `logoutEveryone` – odhlásí všechny správce na všech zařízeních.
+
+**Účet Google školy:** Google maže osobní účty nepoužité 2 roky. Otevření tabulky nebo Gmailu se počítá jako použití, takže při kurzu jednou ročně to nehrozí. Doporučujeme v účtu nastavit záložní e-mail (přijdou na něj případná upozornění).
 
 ## Výkon, kompatibilita a SEO
 
@@ -51,6 +60,7 @@ npm run build    # produkční build do složky dist/
 
 ## Chybějící údaje (hledejte `TODO:` v kódu)
 
+- adresa skriptu Google Tabulky (`src/data/backend.js`) – viz Nastavení výše,
 - výše zápisného (zálohy) a platební údaje / číslo účtu,
 - přesná adresa sálu (Závodní klub PO Lighting Czech),
 - ověření finální domény,
